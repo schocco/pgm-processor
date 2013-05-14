@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
@@ -20,6 +19,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class PgmImage {
+	/** log4j logger. */
 	Logger logger = Logger.getLogger(PgmImage.class);
 	
 	/** source file of the image. */

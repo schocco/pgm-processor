@@ -1,6 +1,7 @@
 package com.is_gr8.imageprocessor.ui;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -16,6 +17,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import com.is_gr8.imageprocessor.PgmImage;
+import com.is_gr8.imageprocessor.PgmProcessor;
 
 /**
  * @author rocco
@@ -76,6 +78,13 @@ public class MainWindow {
 						logger.debug("is file:"
 								+ selectedFile.getAbsolutePath());
 						PgmImage img = new PgmImage(selectedFile);
+						PgmImage inverted = PgmProcessor.invert(img);
+						try {
+							PgmProcessor.writeToDisk(inverted);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					} else {
 						logger.debug("multiple files or folder selected");
 					}
