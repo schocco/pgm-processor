@@ -99,9 +99,9 @@ public class PgmImage {
 					}
 					else {
 						if ("P5".equals(this.magicNumber)) { // Binary format
-							pixels[count / width][count % width] = (byte) ((b >> 8) & 0xFF);
+							pixels[count / width][count % width] = (byte) b;//(byte) ((b >> 8) & 0xFF);
 							count++;
-							pixels[count / width][count % width] = (byte) (b & 0xFF);
+							pixels[count / width][count % width] = (byte) b;//(byte) (b & 0xFF);
 							count++;
 						} else { // ASCII format
 							pixels[count / width][count % width] = (byte) b;

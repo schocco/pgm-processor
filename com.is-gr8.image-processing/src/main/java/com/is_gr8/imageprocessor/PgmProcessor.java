@@ -3,8 +3,12 @@
  */
 package com.is_gr8.imageprocessor;
 
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author rocco
@@ -12,6 +16,7 @@ import java.io.IOException;
  */
 public class PgmProcessor {
 
+	private static Logger logger = Logger.getLogger(PgmProcessor.class);
 	/**
 	 * 
 	 */
@@ -33,6 +38,7 @@ public class PgmProcessor {
 				// invert all bits and only keep the 8 lower bits b4
 				// casting to byte again
 				body[row][col] = (byte) (~body[row][col] & 0xff);
+				body[row][col] = (byte) (~body[row][col] & 0xff);
 			}
 		}
 		pgm.setPixels(body);
@@ -45,17 +51,36 @@ public class PgmProcessor {
 	 * @throws IOException 
 	 */
 	public static void writeToDisk(PgmImage img) throws IOException{
+		
 		FileWriter fw = new FileWriter("imagename.pgm");
-		fw.write("just a test");
+		
+		StringWriter sw = new StringWriter();
+		String linesep = System.getProperty("line.separator");
+		sw.write(img.getMagicNumber());
+		sw.write(linesep);
+		sw.write(String.format("%d %d",img.getHeight(), img.getWidth()));
+		sw.write(linesep);
+		sw.write("#a comment");
+		sw.write(linesep);
+		sw.write(String.valueOf(img.getMaxValue()));
+		sw.write(linesep);
+
+		logger.debug("Header string to be written: \n" + sw.toString());
+		
+		String s = sw.toString();    
+		byte[] header = s.getBytes();
 		byte[][] body = img.getPixels();
+		
+		FileOutputStream output = new FileOutputStream("test.pgm");
+		output.write(header);
+		
 		for(int row = 0; row < body.length; row++){
 			for(int col = 0; col < body[row].length; col++){
-				// invert all bits and only keep the 8 lower bits b4
-				// casting to byte again
-				fw.append((char) body[row][col]);
+				output.write(body[row][col]);
 			}
-			fw.append(System.getProperty("line.separator"));
+			output.write(linesep.getBytes());
 		}
+		output.close();
 		
 	}
 
