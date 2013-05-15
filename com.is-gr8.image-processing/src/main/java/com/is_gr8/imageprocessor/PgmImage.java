@@ -6,7 +6,10 @@ package com.is_gr8.imageprocessor;
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
@@ -99,9 +102,9 @@ public class PgmImage {
 					}
 					else {
 						if ("P5".equals(this.magicNumber)) { // Binary format
-							pixels[count / width][count % width] = (byte) b;//(byte) ((b >> 8) & 0xFF);
+							pixels[count / width][count % width] = (byte) ((b >> 8) & 0xFF);
 							count++;
-							pixels[count / width][count % width] = (byte) b;//(byte) (b & 0xFF);
+							pixels[count / width][count % width] = (byte) (b & 0xFF);
 							count++;
 						} else { // ASCII format
 							pixels[count / width][count % width] = (byte) b;
@@ -123,6 +126,14 @@ public class PgmImage {
 	}
 
 
+	/** alternative reader method using the fileinputstream. */
+	private void readBinary() throws IOException {
+        FileInputStream fis = new FileInputStream( file );
+        byte[] data = new byte[fis.available()];
+        fis.read( data );
+        fis.close();
+	}
+	
 	/**
 	 * @param file
 	 *            the file to set
