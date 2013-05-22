@@ -38,11 +38,15 @@ public class PgmProcessor {
 				// invert all bits and only keep the 8 lower bits b4
 				// casting to byte again
 				body[row][col] = (byte) (~body[row][col] & 0xff);
-				body[row][col] = (byte) (~body[row][col] & 0xff);
 			}
 		}
 		pgm.setPixels(body);
 		return pgm;
+	}
+	
+	public static int[] getHistogram(PgmImage img){
+		//TODO
+		return null;
 	}
 	
 	/**
@@ -82,7 +86,6 @@ public class PgmProcessor {
 			for(int col = 0; col < body[row].length; col++){
 				output.write(body[row][col]);
 			}
-			output.write(linesep.getBytes());
 		}
 		output.close();
 		

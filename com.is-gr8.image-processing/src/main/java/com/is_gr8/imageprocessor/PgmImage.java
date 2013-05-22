@@ -3,8 +3,9 @@
  */
 package com.is_gr8.imageprocessor;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.EOFException;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,6 +38,8 @@ public class PgmImage {
 	private int maxValue;
 	/** pixel bytes. First index for rows, second for columns. */
 	private byte[][] pixels;
+	/** number of bytes used by the header. */
+	private int headerBytes = 0;
 
 	/** returns a shallow copy of the image. The File reference remains identical. */
 	static PgmImage clone(PgmImage img){
@@ -55,7 +58,8 @@ public class PgmImage {
 	 */
 	public PgmImage(final File src) {
 		this.file = src;
-		this.readFile();
+		this.readHeader();
+		this.readBody();
 	}
 
 	/**
@@ -72,53 +76,33 @@ public class PgmImage {
 	 * 
 	 * Based on http://stackoverflow.com/questions/11922252/reading-a-pgm-file-in-java
 	 */
-	private void readFile() {
+	private void readHeader() {
+		
 		try {
-
+			
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			this.magicNumber = br.readLine(); // first line contains P2 or P5
+			this.headerBytes += magicNumber.getBytes().length;
 			String line = br.readLine();
+			this.headerBytes += line.getBytes().length;
 			while (line.startsWith("#")) { //ignore comments
 				line = br.readLine();
+				this.headerBytes += line.getBytes().length;
 			}
 			Scanner s = new Scanner(line);
 			this.width = s.nextInt();
 			this.height = s.nextInt();
 			line = br.readLine();// third line contains maxVal
+			this.headerBytes += line.getBytes().length;
 			s = new Scanner(line);
 			this.maxValue = s.nextInt();
-			
 			this.pixels = new byte[height][width];
+			br.close();
 
-			int count = 0;
-			int b = 0;
-			try {
-				while (count < height * width) {
-					b = br.read();
-					if (b < 0)
-						break;
-
-					if (b == '\n') { // do nothing if new line encountered
-					}
-					else {
-						if ("P5".equals(this.magicNumber)) { // Binary format
-							pixels[count / width][count % width] = (byte) ((b >> 8) & 0xFF);
-							count++;
-							pixels[count / width][count % width] = (byte) (b & 0xFF);
-							count++;
-						} else { // ASCII format
-							pixels[count / width][count % width] = (byte) b;
-							count++;
-						}
-					}
-				}
-			} catch (EOFException eof) {
-				eof.printStackTrace(System.out);
-			}
 			logger.debug("Height=" + height);
 			logger.debug("Width=" + width);
 			logger.debug("Required elements=" + (height * width));
-			logger.debug("Obtained elements=" + count);
+			logger.debug("Bytes used for header info=" + (headerBytes));
 		} catch (Throwable t) {
 			t.printStackTrace(System.err);
 			return;
@@ -126,12 +110,28 @@ public class PgmImage {
 	}
 
 
-	/** alternative reader method using the fileinputstream. */
-	private void readBinary() throws IOException {
-        FileInputStream fis = new FileInputStream( file );
-        byte[] data = new byte[fis.available()];
-        fis.read( data );
-        fis.close();
+	
+	private void readBody() {
+		DataInputStream stream;
+		try {
+			stream = new DataInputStream(new BufferedInputStream(new FileInputStream(this.file)));
+			logger.debug("Skipped " + stream.skipBytes(headerBytes+3)+ " bytes");
+			for(int row = 0; row < this.height; row++){
+				//assume that every row has width bytes followed by a newline character
+				//dispose newline characters.
+				
+				for(int col = 0; col < this.width; col++){
+					byte b = stream.readByte();
+					this.pixels[row][col] = b;
+				}
+			}
+		} catch (FileNotFoundException e1) {
+			logger.error("File not found", e1);
+		} catch (IOException e) {
+			logger.error("IO stuff went wrong when reading the file body.", e);
+		} 
+		
+		
 	}
 	
 	/**
