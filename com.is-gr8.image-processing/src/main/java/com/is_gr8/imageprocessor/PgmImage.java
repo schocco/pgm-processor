@@ -116,7 +116,7 @@ public class PgmImage {
 				eof.printStackTrace(System.out);
 			}
 			logger.debug("Height=" + height);
-			logger.debug("Width=" + height);
+			logger.debug("Width=" + width);
 			logger.debug("Required elements=" + (height * width));
 			logger.debug("Obtained elements=" + count);
 		} catch (Throwable t) {

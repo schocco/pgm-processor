@@ -52,18 +52,22 @@ public class PgmProcessor {
 	 */
 	public static void writeToDisk(PgmImage img) throws IOException{
 		
+		//alternative approach: use fileoutputstream to print bytes, wrap stream in
+		// PrintStream to add newlines and chars
+		//		FileOutputStream output = new FileOutputStream("test.pgm");
+		//		PrintStream pstream = new PrintStream(outstream);
+		
+		
 		FileWriter fw = new FileWriter("imagename.pgm");
 		
 		StringWriter sw = new StringWriter();
 		String linesep = System.getProperty("line.separator");
 		sw.write(img.getMagicNumber());
 		sw.write(linesep);
-		sw.write(String.format("%d %d",img.getHeight(), img.getWidth()));
+		sw.write(String.format("%d %d", img.getWidth(), img.getHeight()));
 		sw.write(linesep);
-		sw.write("#a comment");
-		sw.write(linesep);
-		sw.write(String.valueOf(img.getMaxValue()));
-		sw.write(linesep);
+		sw.write(img.getMaxValue() + " ");
+		//sw.write(linesep);
 
 		logger.debug("Header string to be written: \n" + sw.toString());
 		
