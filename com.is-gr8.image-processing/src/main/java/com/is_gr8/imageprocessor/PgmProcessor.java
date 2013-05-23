@@ -29,7 +29,7 @@ public class PgmProcessor {
 	 * @param img the img to be inverted
 	 * @return shallow copy with inverted bytes
 	 */
-	public static PgmImage invert(PgmImage img){
+	public static PgmImage invert(final PgmImage img){
 		PgmImage pgm = PgmImage.clone(img);
 		byte[][] body = pgm.getPixels();
 		
@@ -44,25 +44,29 @@ public class PgmProcessor {
 		return pgm;
 	}
 	
-	public static int[] getHistogram(PgmImage img){
-		//TODO
-		return null;
+	/**
+	 * Counts how often a color value occurs in the image.
+	 * @param img pgm image
+	 * @return array where each index represents a color value and the
+	 * value represents the number of occurences.
+	 */
+	public static int[] getHistogram(final PgmImage img){
+		int[] distribution = new int[img.getMaxValue()+1];
+		byte[][] pixels = img.getPixels();
+		for(byte[] arr : pixels){
+			for(byte b : arr){
+				distribution[(int) b & 0xff] += 1;
+			}
+		}
+		return distribution;
 	}
 	
 	/**
 	 * Write image to disk
-	 * @param img
+	 * @param img pgm image
 	 * @throws IOException 
 	 */
-	public static void writeToDisk(PgmImage img) throws IOException{
-		
-		//alternative approach: use fileoutputstream to print bytes, wrap stream in
-		// PrintStream to add newlines and chars
-		//		FileOutputStream output = new FileOutputStream("test.pgm");
-		//		PrintStream pstream = new PrintStream(outstream);
-		
-		
-		
+	public static void writeToDisk(final PgmImage img) throws IOException{
 		StringWriter sw = new StringWriter();
 		String linesep = System.getProperty("line.separator");
 		sw.write(img.getMagicNumber());
