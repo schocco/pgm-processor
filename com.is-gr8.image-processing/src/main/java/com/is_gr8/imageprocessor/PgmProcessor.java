@@ -67,14 +67,6 @@ public class PgmProcessor {
 	 * @throws IOException 
 	 */
 	public static void writeToDisk(final PgmImage img) throws IOException{
-		
-		//alternative approach: use fileoutputstream to print bytes, wrap stream in
-		// PrintStream to add newlines and chars
-		//		FileOutputStream output = new FileOutputStream("test.pgm");
-		//		PrintStream pstream = new PrintStream(outstream);
-		
-		
-		
 		StringWriter sw = new StringWriter();
 		String linesep = System.getProperty("line.separator");
 		sw.write(img.getMagicNumber());
