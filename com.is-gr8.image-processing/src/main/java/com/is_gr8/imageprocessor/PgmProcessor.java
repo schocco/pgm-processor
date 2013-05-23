@@ -62,7 +62,6 @@ public class PgmProcessor {
 		//		PrintStream pstream = new PrintStream(outstream);
 		
 		
-		FileWriter fw = new FileWriter("imagename.pgm");
 		
 		StringWriter sw = new StringWriter();
 		String linesep = System.getProperty("line.separator");

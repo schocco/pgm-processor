@@ -38,8 +38,6 @@ public class PgmImage {
 	private int maxValue;
 	/** pixel bytes. First index for rows, second for columns. */
 	private byte[][] pixels;
-	/** number of bytes used by the header. */
-	private int headerBytes = 0;
 
 	/** returns a shallow copy of the image. The File reference remains identical. */
 	static PgmImage clone(PgmImage img){
@@ -82,18 +80,14 @@ public class PgmImage {
 			
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			this.magicNumber = br.readLine(); // first line contains P2 or P5
-			this.headerBytes += magicNumber.getBytes().length;
 			String line = br.readLine();
-			this.headerBytes += line.getBytes().length;
 			while (line.startsWith("#")) { //ignore comments
 				line = br.readLine();
-				this.headerBytes += line.getBytes().length;
 			}
 			Scanner s = new Scanner(line);
 			this.width = s.nextInt();
 			this.height = s.nextInt();
-			line = br.readLine();// third line contains maxVal
-			this.headerBytes += line.getBytes().length;
+			line = br.readLine(); // third line contains maxVal
 			s = new Scanner(line);
 			this.maxValue = s.nextInt();
 			this.pixels = new byte[height][width];
@@ -102,7 +96,6 @@ public class PgmImage {
 			logger.debug("Height=" + height);
 			logger.debug("Width=" + width);
 			logger.debug("Required elements=" + (height * width));
-			logger.debug("Bytes used for header info=" + (headerBytes));
 		} catch (Throwable t) {
 			t.printStackTrace(System.err);
 			return;
@@ -115,11 +108,22 @@ public class PgmImage {
 		DataInputStream stream;
 		try {
 			stream = new DataInputStream(new BufferedInputStream(new FileInputStream(this.file)));
-			logger.debug("Skipped " + stream.skipBytes(headerBytes+3)+ " bytes");
-			for(int row = 0; row < this.height; row++){
-				//assume that every row has width bytes followed by a newline character
-				//dispose newline characters.
-				
+			int newlinecount = 0;
+			char previous = (char) 'a';
+			char c;
+			do{
+				c = (char) stream.readByte();
+				if(c == '\n' || c == '\r'){
+					newlinecount++;
+					logger.debug("Encountered newline.");
+				}
+				if(c == (char) '#' && (previous == '\n' || previous == '\r')){
+					newlinecount--;
+				}
+				previous = c;
+			} while(newlinecount < 3);
+			logger.debug("Skipped header. Start reading binary content...");
+			for(int row = 0; row < this.height; row++){				
 				for(int col = 0; col < this.width; col++){
 					byte b = stream.readByte();
 					this.pixels[row][col] = b;
