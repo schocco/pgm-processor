@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -38,9 +39,9 @@ public class MainWindow {
 	/** the shell. */
 	private Shell shell;
 	/** currently selected img. */
-	PgmImage currentImage = null;
+	private PgmImage currentImage = null;
 	/** selection adapter for the open menu item. */
-	SelectionAdapter openSelectionAdapter = new SelectionAdapter() {
+	private SelectionAdapter openSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 			FileDialog dialog = new FileDialog(shell, SWT.NULL);
 			String[] extensions = {"*.pgm"};
@@ -52,23 +53,20 @@ public class MainWindow {
 				if (selectedFile.isFile()) {
 					logger.debug("is file:"
 							+ selectedFile.getAbsolutePath());
-					PgmImage img = new PgmImage(selectedFile);
-					PgmImage inverted = PgmProcessor.invert(img);
-					try {
-						PgmProcessor.writeToDisk(inverted);
-						PgmProcessor.getHistogram(inverted);
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					currentImage = new PgmImage(selectedFile);
+					
 				} else {
-					logger.debug("multiple files or folder selected");
+					logger.error("multiple files or folder selected");
+					MessageBox errDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+					errDialog.setText("Invalid selection");
+					errDialog.setMessage("The selected file could not be read.");
+					errDialog.open(); 
 				}
 			}
 		};
 	};
 	/** save selection adapter for the menu bar. */
-	SelectionAdapter saveSelectionAdapter = new SelectionAdapter() {
+	private SelectionAdapter saveSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 			String[] extensions = {"*.pgm"};
@@ -79,15 +77,29 @@ public class MainWindow {
 				logger.debug("Save image to: " + path);
 				File selectedFile = new File(path);
 				selectedFile.exists();
-				if (selectedFile.canWrite()) {
-					logger.error("Not yet implemented");
-					//TODO: save current file to specified location
-				} else {
-					logger.error("cannot write to " + path);
-					MessageBox errDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-					errDialog.setText("Unwritable");
-					errDialog.setMessage("You do not have permission to write to this location. Please chose another one.");
-					errDialog.open(); 
+				if (selectedFile.exists() && currentImage != null) {
+					MessageBox errDialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+					errDialog.setText("Replace");
+					errDialog.setMessage("Do you want to overwrite the existing file?");
+					try {
+						int answer = errDialog.open();
+						if(answer == SWT.OK){
+							PgmProcessor.writeToDisk(currentImage);
+						}												
+					} catch (IOException e1) {
+						logger.error("could not save file.", e1);
+					} catch (SWTException e2) {
+						logger.debug("dialog disposed.", e2);
+					}
+				} else if(currentImage != null) {
+					try {
+							PgmProcessor.writeToDisk(currentImage);						
+					} catch (IOException e1) {
+						logger.error("could not save file.", e1);
+					}
+
+				} else{
+					logger.error("Cannot write without having a current image.");
 				}
 			}
 		};
