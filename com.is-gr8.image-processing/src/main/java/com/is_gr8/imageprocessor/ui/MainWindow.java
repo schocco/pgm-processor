@@ -81,6 +81,7 @@ public class MainWindow {
 						PgmImage inverted = PgmProcessor.invert(img);
 						try {
 							PgmProcessor.writeToDisk(inverted);
+							PgmProcessor.getHistogram(inverted);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
