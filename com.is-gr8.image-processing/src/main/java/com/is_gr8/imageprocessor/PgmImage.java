@@ -119,11 +119,12 @@ public class PgmImage {
 				}
 				if(c == (char) '#' && (previous == '\n' || previous == '\r')){
 					newlinecount--;
+					logger.debug("Encountered comment");
 				}
 				previous = c;
 			} while(newlinecount < 3);
 			logger.debug("Skipped header. Start reading binary content...");
-			for(int row = 0; row < this.height; row++){				
+			for(int row = 0; row < this.height; row++){
 				for(int col = 0; col < this.width; col++){
 					byte b = stream.readByte();
 					this.pixels[row][col] = b;
