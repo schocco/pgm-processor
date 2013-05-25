@@ -6,14 +6,20 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -40,6 +46,8 @@ public class MainWindow {
 	private Shell shell;
 	/** currently selected img. */
 	private PgmImage currentImage = null;
+	/** tab item which displays the image information. */
+	ImageInfoComposite imgInfoComposite;
 	/** selection adapter for the open menu item. */
 	private SelectionAdapter openSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
@@ -54,6 +62,7 @@ public class MainWindow {
 					logger.debug("is file:"
 							+ selectedFile.getAbsolutePath());
 					currentImage = new PgmImage(selectedFile);
+					imgInfoComposite.updateElements(currentImage.getInfoMap());
 					
 				} else {
 					logger.error("multiple files or folder selected");
@@ -131,38 +140,76 @@ public class MainWindow {
 	/** initializes the UI. */
 	private void init() {
 		shell.setLayout(new GridLayout(1, true));
+		
+		// add tabs for image information
+		final TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
+		// image info tab
+		TabItem imgInfo = new TabItem(tabFolder, SWT.NULL);
+		imgInfo.setText("Image information");
+		final ScrolledComposite sc1 = new ScrolledComposite(tabFolder, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		imgInfoComposite = new ImageInfoComposite(sc1, SWT.NONE);
+		sc1.setContent(imgInfoComposite);
+		imgInfoComposite.setSize(imgInfoComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+	    sc1.setExpandHorizontal(true);
+	    sc1.setExpandVertical(true);
+		sc1.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_RED));
+		imgInfo.setControl(sc1);
 
+		// histogram
+		TabItem imgHisto = new TabItem(tabFolder, SWT.NULL);
+		imgHisto.setText("Histogram");
+		Text histotext = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
+		histotext.setText("This is the histogram tab ");
+		imgHisto.setControl(histotext);
+		//experimental scroll pane
+	      // set the minimum width and height of the scrolled content - method 2
+	      final ScrolledComposite sc2 = new ScrolledComposite(tabFolder, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+	      TabItem exp = new TabItem(tabFolder, SWT.NULL);
+	      exp.setControl(sc2);
+
+	      final Composite c2 = new Composite(sc2, SWT.NONE);
+	      sc2.setContent(c2);
+	      GridLayout layout = new GridLayout();
+	      layout.numColumns = 4;
+	      c2.setLayout(layout);
+	      
+	      Button b2 = new Button (c2, SWT.PUSH);
+	      b2.setText("first button");
+	      sc2.setMinSize(c2.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+	      
+	      Button add = new Button (shell, SWT.PUSH);
+	      add.setText("add children");
+	      final int[] index = new int[]{0};
+	      add.addListener(SWT.Selection, new Listener() {
+	          public void handleEvent(Event e) {
+	              index[0]++;
+	              Button button = new Button(c2, SWT.PUSH);
+	              button.setText("button "+index[0]);
+	              button = new Button(c2, SWT.PUSH);
+	              button.setText("button "+index[0]);
+	              // reset the minimum width and height so children can be seen - method 2
+	              sc2.setMinSize(c2.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+	              c2.layout();
+	          }
+	      });
 		
-		//add invert button
-//		Button button = new Button(shell, SWT.PUSH);
-//		button.setText("Invert");
-//		button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-//		button.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(SelectionEvent e) {
-//				
-//			}
-//		});
+		// the picture preview
+		TabItem imgPreview = new TabItem(tabFolder, SWT.NULL);
+		imgPreview.setText("Preview");
+		Text prevtext = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
+		prevtext.setText("This is the info tab ");
+		imgPreview.setControl(prevtext);
 		
-		//add tabs for image information
-		final TabFolder tabFolder = new TabFolder (shell, SWT.NONE);
-		  for (int i=1; i<5; i++) {
-		 TabItem item = new TabItem (tabFolder, SWT.NULL);
-		 item.setText ("Tab" + i);
-		 Text text = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
-		 text.setText("This is Tab "+i);
-		 item.setControl(text);
-		 }
-		 tabFolder.setSize (250, 150);
-		 tabFolder.addSelectionListener(new SelectionListener() {
-		 public void widgetSelected(SelectionEvent e) {
-		 System.out.println("You have selected:"+ tabFolder.getSelection()
-		  [0].toString());
-		 }
-		 public void widgetDefaultSelected(SelectionEvent e) {
-			  widgetSelected(e);
-			  }
-			  });
-		
+		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tabFolder.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) {
+			}
+
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+
 		//add menu bar
 		Menu appMenuBar = shell.getDisplay().getMenuBar();
 		if (appMenuBar == null) {

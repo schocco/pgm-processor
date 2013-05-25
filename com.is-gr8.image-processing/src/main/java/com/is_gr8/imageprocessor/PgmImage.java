@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
@@ -187,6 +188,17 @@ public class PgmImage {
 	 */
 	public final int getMaxValue() {
 		return maxValue;
+	}
+	
+	public final HashMap<String,String> getInfoMap(){
+		HashMap<String,String> infomap = new HashMap<String,String>();
+		infomap.put("Magic Number", magicNumber);
+		infomap.put("Width", String.valueOf(width));
+		infomap.put("Height", String.valueOf(height));
+		infomap.put("Max Value", String.valueOf(maxValue));
+		infomap.put("File path", String.valueOf(file.getAbsolutePath()));
+		infomap.put("File size", String.format("%d Bytes", file.length()));
+		return infomap;
 	}
 
 }
