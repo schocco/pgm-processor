@@ -7,6 +7,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 /**
@@ -36,7 +37,14 @@ public class ImageInfoComposite extends Composite {
 		this.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 	}
 	
+	/**
+	 * Clears the composite and adds labels for the keys and values of the provided map.
+	 * @param imageinfo
+	 */
 	public void updateElements(HashMap<String,String> imageinfo){
+		for (Control control : this.getChildren()) {
+	        control.dispose();
+	    }
 		for(String label: imageinfo.keySet()){
 			//griddata
 			GridData data = new GridData();
@@ -56,6 +64,7 @@ public class ImageInfoComposite extends Composite {
 		}
 		logger.debug("Updating tab contents.");
 		this.layout();
+		this.pack();
 		this.getParent().layout();
 	}
 

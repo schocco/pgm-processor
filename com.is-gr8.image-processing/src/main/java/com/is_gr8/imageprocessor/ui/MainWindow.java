@@ -7,19 +7,19 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -32,8 +32,7 @@ import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 
 /**
- * @author rocco
- * The application window.
+ * @author rocco The application window.
  */
 public class MainWindow {
 	/** logger. */
@@ -47,29 +46,39 @@ public class MainWindow {
 	/** currently selected img. */
 	private PgmImage currentImage = null;
 	/** tab item which displays the image information. */
-	ImageInfoComposite imgInfoComposite;
+	private ImageInfoComposite imgInfoComposite;
+	/** tab folder for the main contents. */
+	private TabFolder tabFolder;
+	/** scroller which holds the imginfocomposite. */
+	private ScrolledComposite imginfoScroller;
 	/** selection adapter for the open menu item. */
 	private SelectionAdapter openSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 			FileDialog dialog = new FileDialog(shell, SWT.NULL);
-			String[] extensions = {"*.pgm"};
+			String[] extensions = { "*.pgm" };
 			dialog.setFilterExtensions(extensions);
 			String path = dialog.open();
 			if (path != null) {
 
 				File selectedFile = new File(path);
 				if (selectedFile.isFile()) {
-					logger.debug("is file:"
-							+ selectedFile.getAbsolutePath());
+					logger.debug("is file:" + selectedFile.getAbsolutePath());
 					currentImage = new PgmImage(selectedFile);
 					imgInfoComposite.updateElements(currentImage.getInfoMap());
-					
+					// update scroller size info for proper scroll bars
+					Rectangle r = imginfoScroller.getClientArea();
+					imginfoScroller.setMinHeight(tabFolder.computeSize(
+							SWT.DEFAULT, r.height).y);
+					imginfoScroller.setMinWidth(tabFolder.computeSize(
+							SWT.DEFAULT, r.width).x);
 				} else {
 					logger.error("multiple files or folder selected");
-					MessageBox errDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+					MessageBox errDialog = new MessageBox(shell, SWT.ICON_ERROR
+							| SWT.OK);
 					errDialog.setText("Invalid selection");
-					errDialog.setMessage("The selected file could not be read.");
-					errDialog.open(); 
+					errDialog
+							.setMessage("The selected file could not be read.");
+					errDialog.open();
 				}
 			}
 		};
@@ -78,7 +87,7 @@ public class MainWindow {
 	private SelectionAdapter saveSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-			String[] extensions = {"*.pgm"};
+			String[] extensions = { "*.pgm" };
 			dialog.setFilterExtensions(extensions);
 			dialog.setFileName("image.pgm");
 			String path = dialog.open();
@@ -87,27 +96,29 @@ public class MainWindow {
 				File selectedFile = new File(path);
 				selectedFile.exists();
 				if (selectedFile.exists() && currentImage != null) {
-					MessageBox errDialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+					MessageBox errDialog = new MessageBox(shell,
+							SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
 					errDialog.setText("Replace");
-					errDialog.setMessage("Do you want to overwrite the existing file?");
+					errDialog
+							.setMessage("Do you want to overwrite the existing file?");
 					try {
 						int answer = errDialog.open();
-						if(answer == SWT.OK){
+						if (answer == SWT.OK) {
 							PgmProcessor.writeToDisk(currentImage);
-						}												
+						}
 					} catch (IOException e1) {
 						logger.error("could not save file.", e1);
 					} catch (SWTException e2) {
 						logger.debug("dialog disposed.", e2);
 					}
-				} else if(currentImage != null) {
+				} else if (currentImage != null) {
 					try {
-							PgmProcessor.writeToDisk(currentImage);						
+						PgmProcessor.writeToDisk(currentImage);
 					} catch (IOException e1) {
 						logger.error("could not save file.", e1);
 					}
 
-				} else{
+				} else {
 					logger.error("Cannot write without having a current image.");
 				}
 			}
@@ -140,77 +151,15 @@ public class MainWindow {
 	/** initializes the UI. */
 	private void init() {
 		shell.setLayout(new GridLayout(1, true));
-		
-		// add tabs for image information
-		final TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
-		// image info tab
-		TabItem imgInfo = new TabItem(tabFolder, SWT.NULL);
-		imgInfo.setText("Image information");
-		final ScrolledComposite sc1 = new ScrolledComposite(tabFolder, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		imgInfoComposite = new ImageInfoComposite(sc1, SWT.NONE);
-		sc1.setContent(imgInfoComposite);
-		imgInfoComposite.setSize(imgInfoComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	    sc1.setExpandHorizontal(true);
-	    sc1.setExpandVertical(true);
-		sc1.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_RED));
-		imgInfo.setControl(sc1);
+		initMenuBar();
+		initTabFolder();
+	}
 
-		// histogram
-		TabItem imgHisto = new TabItem(tabFolder, SWT.NULL);
-		imgHisto.setText("Histogram");
-		Text histotext = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
-		histotext.setText("This is the histogram tab ");
-		imgHisto.setControl(histotext);
-		//experimental scroll pane
-	      // set the minimum width and height of the scrolled content - method 2
-	      final ScrolledComposite sc2 = new ScrolledComposite(tabFolder, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-	      TabItem exp = new TabItem(tabFolder, SWT.NULL);
-	      exp.setControl(sc2);
-
-	      final Composite c2 = new Composite(sc2, SWT.NONE);
-	      sc2.setContent(c2);
-	      GridLayout layout = new GridLayout();
-	      layout.numColumns = 4;
-	      c2.setLayout(layout);
-	      
-	      Button b2 = new Button (c2, SWT.PUSH);
-	      b2.setText("first button");
-	      sc2.setMinSize(c2.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	      
-	      Button add = new Button (shell, SWT.PUSH);
-	      add.setText("add children");
-	      final int[] index = new int[]{0};
-	      add.addListener(SWT.Selection, new Listener() {
-	          public void handleEvent(Event e) {
-	              index[0]++;
-	              Button button = new Button(c2, SWT.PUSH);
-	              button.setText("button "+index[0]);
-	              button = new Button(c2, SWT.PUSH);
-	              button.setText("button "+index[0]);
-	              // reset the minimum width and height so children can be seen - method 2
-	              sc2.setMinSize(c2.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	              c2.layout();
-	          }
-	      });
-		
-		// the picture preview
-		TabItem imgPreview = new TabItem(tabFolder, SWT.NULL);
-		imgPreview.setText("Preview");
-		Text prevtext = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
-		prevtext.setText("This is the info tab ");
-		imgPreview.setControl(prevtext);
-		
-		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		tabFolder.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-			}
-
-			public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);
-			}
-		});
-
-		//add menu bar
+	/**
+	 * Adds a menu to the window for opening and saving files.
+	 */
+	private void initMenuBar() {
+		// add menu bar
 		Menu appMenuBar = shell.getDisplay().getMenuBar();
 		if (appMenuBar == null) {
 			appMenuBar = new Menu(shell, SWT.BAR);
@@ -218,20 +167,20 @@ public class MainWindow {
 		}
 		Menu dropdown = new Menu(appMenuBar);
 		Menu dropdown2 = new Menu(appMenuBar);
-		
-		//FILE TREE
+
+		// FILE TREE
 		MenuItem file = new MenuItem(appMenuBar, SWT.CASCADE);
 		file.setText("File");
 		file.setMenu(dropdown);
-		
+
 		MenuItem open = new MenuItem(dropdown, SWT.PUSH);
 		open.setText("Open...");
 		open.addSelectionListener(openSelectionAdapter);
-		
+
 		MenuItem save = new MenuItem(dropdown, SWT.PUSH);
 		save.setText("Save as...");
 		save.addSelectionListener(saveSelectionAdapter);
-		
+
 		MenuItem exit = new MenuItem(dropdown, SWT.PUSH);
 		exit.setText("Exit");
 		exit.addSelectionListener(new SelectionAdapter() {
@@ -239,18 +188,91 @@ public class MainWindow {
 				shell.getDisplay().dispose();
 			};
 		});
-		
-		//FUNCTIONS TREE
+
+		// FUNCTIONS TREE
 		MenuItem functions = new MenuItem(appMenuBar, SWT.CASCADE);
 		functions.setText("Functions");
 		functions.setMenu(dropdown2);
-		
+
 		MenuItem invert = new MenuItem(dropdown2, SWT.PUSH);
 		invert.setText("invert");
 		invert.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				currentImage = PgmProcessor.invert(currentImage);
 			};
+		});
+	}
+
+	/**
+	 * Adds a tabbed folder with composites that contain image information,
+	 * histogram etc.
+	 */
+	private void initTabFolder() {
+		tabFolder = new TabFolder(shell, SWT.NONE);
+		
+		// image info tab
+		TabItem imgInfoTab = new TabItem(tabFolder, SWT.NONE);
+		imgInfoTab.setText("Image information");
+		// we want the content to scroll
+		imginfoScroller = new ScrolledComposite(tabFolder, SWT.H_SCROLL	| SWT.V_SCROLL);
+		imginfoScroller.setLayout(new FillLayout());
+		// the actual content
+		imgInfoComposite = new ImageInfoComposite(imginfoScroller, SWT.NONE);
+		// which goes as content to the scrolled composite
+		imginfoScroller.setContent(imgInfoComposite);
+		imginfoScroller.setExpandVertical(true);
+		imginfoScroller.setExpandHorizontal(true);
+		imginfoScroller.setMinHeight(tabFolder.computeSize(SWT.DEFAULT,	SWT.DEFAULT).y);
+		imginfoScroller.setMinWidth(tabFolder.computeSize(SWT.DEFAULT, SWT.DEFAULT).x);
+		imginfoScroller.addControlListener(new ControlAdapter() {
+			public void controlResized(ControlEvent e) {
+				// recalculate height in case the resize makes texts
+				// wrap or things happen that require it
+				Rectangle r = imginfoScroller.getClientArea();
+				imginfoScroller.setMinHeight(tabFolder.computeSize(SWT.DEFAULT,	r.height).y);
+				imginfoScroller.setMinWidth(tabFolder.computeSize(SWT.DEFAULT, r.width).x);
+			}
+		});
+		// the scroller gets the control of the tab item
+		imgInfoTab.setControl(imginfoScroller);
+
+		
+		// histogram
+		TabItem imgHisto = new TabItem(tabFolder, SWT.NULL);
+		imgHisto.setText("Histogram");
+		
+		HistogramComposite histoComposite = new HistogramComposite(tabFolder, SWT.NONE);
+		histoComposite.update();
+		imgHisto.setControl(histoComposite);
+		// experimental scroll pane
+		// set the minimum width and height of the scrolled content - method 2
+		final ScrolledComposite sc2 = new ScrolledComposite(tabFolder,
+				SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		TabItem exp = new TabItem(tabFolder, SWT.NULL);
+		exp.setControl(sc2);
+
+		final Composite c2 = new Composite(sc2, SWT.NONE);
+		sc2.setContent(c2);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 4;
+		c2.setLayout(layout);
+
+		// the picture preview
+		TabItem imgPreview = new TabItem(tabFolder, SWT.NULL);
+		imgPreview.setText("Preview");
+		Text prevtext = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
+		prevtext.setText("This is the info tab ");
+		imgPreview.setControl(prevtext);
+
+		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+				1));
+		tabFolder.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) {
+			}
+
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
 		});
 	}
 
@@ -267,4 +289,6 @@ public class MainWindow {
 		int nTop = (bds.height - p.y) / 2;
 		shell.setBounds(nLeft, nTop, p.x, p.y);
 	}
+
+
 }
