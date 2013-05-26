@@ -46,11 +46,8 @@ public class HistogramComposite extends Composite {
 		dataset = new HistogramDataset();
 		dataset.setType(HistogramType.RELATIVE_FREQUENCY);
 
-		int[] values = PgmProcessor.getHistogram(pgm);
-		double[] vals = new double[values.length];
-		for(int i=0; i<values.length; i++){
-			vals[i] = values[i];
-		}
+		double[] vals = PgmProcessor.getHistogramData(pgm);
+
 		dataset.addSeries("H1", vals, vals.length);
 		
 		logger.debug(vals);

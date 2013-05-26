@@ -62,6 +62,28 @@ public class PgmProcessor {
 	}
 	
 	/**
+	 * Returns the raw data and does not count the number of occurences as opposed
+	 * to {@link #getHistogram(PgmImage)}.
+	 * This is needed by the jfreechartlibrary for histogram chart creation.
+	 * @param img
+	 * @return array where each field represents a pixel.
+	 */
+	public static double[] getHistogramData(final PgmImage img){
+		if(img.getPixels() == null || img.getPixels().length < 1){
+			throw new IllegalArgumentException("image must have a body.");
+		}
+		byte[][] pixels = img.getPixels();
+		int n = 0;
+		double[] d = new double[pixels.length * pixels[0].length];
+		for(byte[] arr : pixels){
+			for(byte i: arr){
+				d[n++] = i & 0xff;
+			}
+		}
+		return d;
+	}
+	
+	/**
 	 * Write image to disk
 	 * @param img pgm image
 	 * @throws IOException 
