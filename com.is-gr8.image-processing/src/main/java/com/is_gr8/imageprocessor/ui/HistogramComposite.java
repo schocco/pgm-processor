@@ -61,7 +61,7 @@ public class HistogramComposite extends Composite implements ImageEventListener{
 		logger.debug(vals);
 		logger.debug(vals.length);
 		
-		JFreeChart chart = ChartFactory.createHistogram("Histogram", "Color", "occurences", dataset, PlotOrientation.VERTICAL, false, false, false);
+		JFreeChart chart = ChartFactory.createHistogram("Histogram", "Color", "Occurences", dataset, PlotOrientation.VERTICAL, false, false, false);
 		Frame awtFrame = SWT_AWT.new_Frame(this);
 		ChartPanel chartpanel = new ChartPanel(chart);
 		JPanel jPanel = new JPanel();
@@ -71,6 +71,7 @@ public class HistogramComposite extends Composite implements ImageEventListener{
 		this.layout();
 		this.redraw();
 		this.update();
+		this.getParent().update();
 		this.getParent().layout();
 	}
 
