@@ -20,6 +20,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 
+import com.is_gr8.imageprocessor.ImageEvent;
+import com.is_gr8.imageprocessor.ImageEventListener;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 
@@ -27,7 +29,7 @@ import com.is_gr8.imageprocessor.PgmProcessor;
  * @author rocco
  *
  */
-public class HistogramComposite extends Composite {
+public class HistogramComposite extends Composite implements ImageEventListener{
 	private HistogramDataset dataset;
 	private Logger logger = Logger.getLogger(HistogramComposite.class);
 
@@ -62,6 +64,34 @@ public class HistogramComposite extends Composite {
         awtFrame.add(jPanel);
 		this.pack();
 		this.getParent().layout();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageOpened()
+	 */
+	public void imageOpened(ImageEvent e) {
+		update(e.getImage());
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageSaved()
+	 */
+	public void imageSaved(ImageEvent e) {
+		// can be ignored		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageHeaderChanged()
+	 */
+	public void imageHeaderChanged(ImageEvent e) {
+		// can be ignored		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageBodyChanged()
+	 */
+	public void imageBodyChanged(ImageEvent e) {
+		update(e.getImage());	
 	}
 
 }
