@@ -8,6 +8,7 @@ import java.awt.Frame;
 
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -19,12 +20,16 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 
+import com.is_gr8.imageprocessor.PgmImage;
+import com.is_gr8.imageprocessor.PgmProcessor;
+
 /**
  * @author rocco
  *
  */
 public class HistogramComposite extends Composite {
 	private HistogramDataset dataset;
+	private Logger logger = Logger.getLogger(HistogramComposite.class);
 
 	/**
 	 * @param parent
@@ -35,13 +40,21 @@ public class HistogramComposite extends Composite {
 		this.setLayout(new FillLayout());
 	}
 	
-	/** draws the histogram with the provided data. */
-	public void update(){
+	/** draws the histogram with the provided data.
+	 * @param pgm the pgm image*/
+	public void update(PgmImage pgm){
 		dataset = new HistogramDataset();
-		dataset.setType(HistogramType.FREQUENCY);
+		dataset.setType(HistogramType.RELATIVE_FREQUENCY);
 
-		double[] values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
-		dataset.addSeries("H1", values, 10, 0.0, 10.0);
+		int[] values = PgmProcessor.getHistogram(pgm);
+		double[] vals = new double[values.length];
+		for(int i=0; i<values.length; i++){
+			vals[i] = values[i];
+		}
+		dataset.addSeries("H1", vals, vals.length);
+		
+		logger.debug(vals);
+		logger.debug(vals.length);
 		
 		JFreeChart chart = ChartFactory.createHistogram("Histogram", "Color", "occurences", dataset, PlotOrientation.VERTICAL, false, false, false);
 		Frame awtFrame = SWT_AWT.new_Frame(this);
@@ -50,15 +63,8 @@ public class HistogramComposite extends Composite {
         jPanel.setLayout(new BorderLayout());
         jPanel.add(chartpanel, BorderLayout.NORTH);
         awtFrame.add(jPanel);
-		//ChartComposite composite = new ChartComposite(this, SWT.NONE);
 		this.pack();
 		this.getParent().layout();
 	}
-
-
-	
-	//TODO: Window or frame to display a histogram.
-	// constructor should take distribution array.
-	// use jfreecharts histogramdataset.
 
 }

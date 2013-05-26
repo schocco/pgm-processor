@@ -51,6 +51,8 @@ public class MainWindow {
 	private TabFolder tabFolder;
 	/** scroller which holds the imginfocomposite. */
 	private ScrolledComposite imginfoScroller;
+	/** the composite which contains the histogram for the current image. */
+	private HistogramComposite histoComposite;
 	/** selection adapter for the open menu item. */
 	private SelectionAdapter openSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
@@ -71,6 +73,8 @@ public class MainWindow {
 							SWT.DEFAULT, r.height).y);
 					imginfoScroller.setMinWidth(tabFolder.computeSize(
 							SWT.DEFAULT, r.width).x);
+					histoComposite.update(currentImage);
+					
 				} else {
 					logger.error("multiple files or folder selected");
 					MessageBox errDialog = new MessageBox(shell, SWT.ICON_ERROR
@@ -241,7 +245,7 @@ public class MainWindow {
 		TabItem imgHisto = new TabItem(tabFolder, SWT.NULL);
 		imgHisto.setText("Histogram");
 		
-		HistogramComposite histoComposite = new HistogramComposite(tabFolder, SWT.NONE);
+		histoComposite = new HistogramComposite(tabFolder, SWT.NONE);
 		histoComposite.update();
 		imgHisto.setControl(histoComposite);
 		// experimental scroll pane
