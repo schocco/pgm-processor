@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -39,6 +40,9 @@ public class PgmImage {
 	private int maxValue;
 	/** pixel bytes. First index for rows, second for columns. */
 	private byte[][] pixels;
+	/** event listeners. */
+	private ArrayList<ImageEventListener> listeners = new ArrayList<ImageEventListener>();
+	
 
 	/** returns a shallow copy of the image. The File reference remains identical. */
 	static PgmImage clone(PgmImage img){
@@ -158,8 +162,9 @@ public class PgmImage {
 	/**
 	 * @param pixels the pixels to set
 	 */
-	public final void setPixels(byte[][] pixels) {
-		this.pixels = pixels;
+	public final void setPixels(byte[][] pix) {
+		this.pixels = pix;
+		this.bodyChanged();
 	}
 
 	/**
@@ -199,6 +204,46 @@ public class PgmImage {
 		infomap.put("File path", String.valueOf(file.getAbsolutePath()));
 		infomap.put("File size", String.format("%d Bytes", file.length()));
 		return infomap;
+	}
+	
+	public void addListener(ImageEventListener listener){
+		listeners.add(listener);
+	}
+	
+	public void removeListener(ImageEventListener listener){
+		listeners.remove(listener);
+	}
+	
+	private void headerChanged(){
+		logger.debug("Event triggered: Image header changed.");
+		ImageEvent evt = new ImageEvent(this);
+		for(ImageEventListener l: listeners){
+			l.imageHeaderChanged(evt);
+		}
+	}
+	
+	private void bodyChanged(){
+		logger.debug("Event triggered: Image body changed.");
+		ImageEvent evt = new ImageEvent(this);
+		for(ImageEventListener l: listeners){
+			l.imageBodyChanged(evt);
+		}
+	}
+	
+	public void imgSaved(){
+		logger.debug("Event triggered: Image saved.");
+		ImageEvent evt = new ImageEvent(this);
+		for(ImageEventListener l: listeners){
+			l.imageSaved(evt);
+		}
+	}
+	
+	public void imgOpened(){
+		logger.debug("Event triggered: Image opened.");
+		ImageEvent evt = new ImageEvent(this);
+		for(ImageEventListener l: listeners){
+			l.imageOpened(evt);
+		}
 	}
 
 }

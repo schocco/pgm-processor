@@ -10,13 +10,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import com.is_gr8.imageprocessor.ImageEvent;
+import com.is_gr8.imageprocessor.ImageEventListener;
+
 /**
  * created May 24, 2013
  *
  * @author Rocco Schulz <roccos@de.ibm.com>
  * 
  */
-public class ImageInfoComposite extends Composite {
+public class ImageInfoComposite extends Composite implements ImageEventListener {
 	private HashMap<String,String> imageinfo;
 	private static Logger logger = Logger.getLogger(ImageInfoComposite.class);
 	
@@ -66,6 +69,34 @@ public class ImageInfoComposite extends Composite {
 		this.layout();
 		this.pack();
 		this.getParent().layout();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageOpened(com.is_gr8.imageprocessor.ImageEvent)
+	 */
+	public void imageOpened(ImageEvent e) {
+		updateElements(e.getImage().getInfoMap());		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageSaved(com.is_gr8.imageprocessor.ImageEvent)
+	 */
+	public void imageSaved(ImageEvent e) {
+		// can be ignored.
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageHeaderChanged(com.is_gr8.imageprocessor.ImageEvent)
+	 */
+	public void imageHeaderChanged(ImageEvent e) {
+		updateElements(e.getImage().getInfoMap());
+	}
+
+	/* (non-Javadoc)
+	 * @see com.is_gr8.imageprocessor.ImageEventListener#imageBodyChanged(com.is_gr8.imageprocessor.ImageEvent)
+	 */
+	public void imageBodyChanged(ImageEvent e) {
+		//can be ignored
 	}
 
 }

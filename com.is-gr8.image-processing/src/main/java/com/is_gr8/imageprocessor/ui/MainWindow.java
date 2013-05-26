@@ -66,14 +66,17 @@ public class MainWindow {
 				if (selectedFile.isFile()) {
 					logger.debug("is file:" + selectedFile.getAbsolutePath());
 					currentImage = new PgmImage(selectedFile);
-					imgInfoComposite.updateElements(currentImage.getInfoMap());
+					currentImage.addListener(imgInfoComposite);
+					currentImage.addListener(histoComposite);
+					
+					currentImage.imgOpened();
+					
 					// update scroller size info for proper scroll bars
 					Rectangle r = imginfoScroller.getClientArea();
 					imginfoScroller.setMinHeight(tabFolder.computeSize(
 							SWT.DEFAULT, r.height).y);
 					imginfoScroller.setMinWidth(tabFolder.computeSize(
 							SWT.DEFAULT, r.width).x);
-					histoComposite.update(currentImage);
 					
 				} else {
 					logger.error("multiple files or folder selected");

@@ -13,6 +13,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -45,6 +46,11 @@ public class HistogramComposite extends Composite implements ImageEventListener{
 	/** draws the histogram with the provided data.
 	 * @param pgm the pgm image*/
 	public void update(PgmImage pgm){
+		//clean up old contents
+		for(Control x : this.getChildren()){
+			x.dispose();
+		}
+		
 		dataset = new HistogramDataset();
 		dataset.setType(HistogramType.RELATIVE_FREQUENCY);
 
@@ -62,7 +68,9 @@ public class HistogramComposite extends Composite implements ImageEventListener{
         jPanel.setLayout(new BorderLayout());
         jPanel.add(chartpanel, BorderLayout.NORTH);
         awtFrame.add(jPanel);
-		this.pack();
+		this.layout();
+		this.redraw();
+		this.update();
 		this.getParent().layout();
 	}
 
