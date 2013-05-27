@@ -120,7 +120,7 @@ public class MainWindow {
 					}
 				} else if (currentImage != null) {
 					try {
-						PgmProcessor.writeToDisk(currentImage);
+						PgmProcessor.writeToDisk(currentImage, path);
 					} catch (IOException e1) {
 						logger.error("could not save file.", e1);
 					}
