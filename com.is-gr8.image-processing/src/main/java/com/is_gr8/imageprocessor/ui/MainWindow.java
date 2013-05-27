@@ -205,7 +205,7 @@ public class MainWindow {
 		invert.setText("invert");
 		invert.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				currentImage = PgmProcessor.invert(currentImage);
+				currentImage = PgmProcessor.invert(currentImage, false);
 			};
 		});
 	}

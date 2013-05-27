@@ -29,8 +29,14 @@ public class PgmProcessor {
 	 * @param img the img to be inverted
 	 * @return shallow copy with inverted bytes
 	 */
-	public static PgmImage invert(final PgmImage img){
-		PgmImage pgm = PgmImage.clone(img);
+	public static PgmImage invert(final PgmImage img, boolean clone){
+		PgmImage pgm;
+		if(clone){
+			pgm = PgmImage.clone(img);
+		} else {
+			pgm = img;
+		}
+		
 		byte[][] body = pgm.getPixels();
 		
 		for(int row = 0; row < body.length; row++){
@@ -50,8 +56,8 @@ public class PgmProcessor {
 	 * @return array where each index represents a color value and the
 	 * value represents the number of occurences.
 	 */
-	public static int[] getHistogram(final PgmImage img){
-		int[] distribution = new int[img.getMaxValue()+1];
+	public static double[] getHistogram(final PgmImage img){
+		double[] distribution = new double[img.getMaxValue()+1];
 		byte[][] pixels = img.getPixels();
 		for(byte[] arr : pixels){
 			for(byte b : arr){
