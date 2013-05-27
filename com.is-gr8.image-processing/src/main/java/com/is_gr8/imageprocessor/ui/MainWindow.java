@@ -111,7 +111,7 @@ public class MainWindow {
 					try {
 						int answer = errDialog.open();
 						if (answer == SWT.OK) {
-							PgmProcessor.writeToDisk(currentImage);
+							PgmProcessor.writeToDisk(currentImage, path);
 						}
 					} catch (IOException e1) {
 						logger.error("could not save file.", e1);
@@ -206,6 +206,14 @@ public class MainWindow {
 		invert.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				currentImage = PgmProcessor.invert(currentImage, false);
+			};
+		});
+		
+		MenuItem smooth = new MenuItem(dropdown2, SWT.PUSH);
+		smooth.setText("smoothen");
+		smooth.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				currentImage = PgmProcessor.smooth(currentImage, 3);
 			};
 		});
 	}

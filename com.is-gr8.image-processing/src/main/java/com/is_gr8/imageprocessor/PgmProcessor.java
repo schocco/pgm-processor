@@ -3,11 +3,12 @@
  */
 package com.is_gr8.imageprocessor;
 
+import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 /**
@@ -50,6 +51,54 @@ public class PgmProcessor {
 		return pgm;
 	}
 	
+	public static PgmImage smooth(final PgmImage img, final int intensity){
+		byte[][] pixels = img.getPixels();
+		byte[][] blurred = new byte[pixels.length][pixels[0].length];
+		
+		for(int row=0; row<pixels.length; row++){
+			for(int col=0; col<pixels[row].length; col++){
+				blurred[row][col] = getAverageValue(pixels, row, col, intensity);
+			}
+		}
+		img.setPixels(blurred);
+		return img;
+	}
+	
+	private static byte getAverageValue(byte[][] pixels, int row, int col, int intensity) {
+		//    3 2 1 0 1 2 3
+		// 3  X X X X X X X
+		// 2  X X X X X X X
+		// 1  X X X X X X X
+		// 0  X X X _ X X X
+		// 1  X X X X X X X
+		// 2  X X X X X X X
+		// 3  X X X X X X X
+		
+		// Get a DescriptiveStatistics instance
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+		//distance from the central pixel
+		int distance = intensity - 1 / 2;
+		//iterate through the array to collect all surrounding pixels
+		int rowcount = row + distance;
+		int colcount = col + distance;
+		
+		for(int r = row - distance; row < rowcount; row++){
+			for(int c = col - distance; col < colcount; col++){
+				try{
+					stats.addValue(pixels[r][c] & 0xff);
+				} catch(ArrayIndexOutOfBoundsException e){
+					logger.debug("message" + e.getMessage());
+					//ignore out of bounds.
+					//occurs for corner/border pixels only
+				}
+			}
+		}
+		logger.debug("Collected " + stats.getN() + " pixel values with an average of " + stats.getMean());
+		// Compute some statistics
+		byte mean = (byte) stats.getMean();
+		return mean;
+	}
+
 	/**
 	 * Counts how often a color value occurs in the image.
 	 * @param img pgm image
@@ -94,7 +143,7 @@ public class PgmProcessor {
 	 * @param img pgm image
 	 * @throws IOException 
 	 */
-	public static void writeToDisk(final PgmImage img) throws IOException{
+	public static void writeToDisk(final PgmImage img, String path) throws IOException{
 		StringWriter sw = new StringWriter();
 		String linesep = System.getProperty("line.separator");
 		sw.write(img.getMagicNumber());
@@ -110,7 +159,7 @@ public class PgmProcessor {
 		byte[] header = s.getBytes();
 		byte[][] body = img.getPixels();
 		
-		FileOutputStream output = new FileOutputStream("test.pgm");
+		FileOutputStream output = new FileOutputStream(path);
 		output.write(header);
 		
 		for(int row = 0; row < body.length; row++){
@@ -119,6 +168,7 @@ public class PgmProcessor {
 			}
 		}
 		output.close();
+		img.setFile(new File(path));
 		
 	}
 
