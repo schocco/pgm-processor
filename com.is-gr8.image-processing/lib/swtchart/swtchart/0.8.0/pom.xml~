@@ -1,0 +1,22 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>swtchart</groupId>
+  <artifactId>swtchart</artifactId>
+  <packaging>jar</packaging>
+  <name>SWTCHART</name>
+  <version>0.8.0</version>
+  <url>http://owlapi.sourceforge.net/</url>
+  <description>Java interface and implementation for the Web Ontology Language OWL</description>
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License, Version 3</name>
+      <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>http://sourceforge.net/svn/?group_id=90989</url>
+  </scm>
+  <dependencies>
+  </dependencies>
+</project>

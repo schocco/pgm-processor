@@ -1,0 +1,22 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>swtchart</groupId>
+  <artifactId>swtchart</artifactId>
+  <packaging>jar</packaging>
+  <name>SWTCHART</name>
+  <version>0.8.0</version>
+  <url>http://www.swtchart.org/</url>
+  <description>Chat library for SWT</description>
+  <licenses>
+    <license>
+      <name>Eclipse Public License v1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>http://sourceforge.net/projects/swt-chart/files/SWTChart/0.8.0/</url>
+  </scm>
+  <dependencies>
+  </dependencies>
+</project>

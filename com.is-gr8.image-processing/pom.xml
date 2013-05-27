@@ -22,6 +22,11 @@
         <id>swt-repo</id>
         <url>https://swt-repo.googlecode.com/svn/repo/</url>
     </repository>
+	<repository>
+		<id>local</id>
+		<name>Local repository in project tree</name>
+		<url>file:${basedir}/lib</url>
+	</repository>
 	</repositories>
 
     
@@ -76,7 +81,12 @@
         <version>3.7.2</version>
     </dependency>
     -->
-
+    	<dependency>
+    		<groupId>swtchart</groupId>
+    		<artifactId>swtchart</artifactId>
+    		<version>0.8.0</version>
+    	</dependency>
+    	
     	<dependency>
     		<groupId>jfree</groupId>
     		<artifactId>jfreechart-experimental</artifactId>
