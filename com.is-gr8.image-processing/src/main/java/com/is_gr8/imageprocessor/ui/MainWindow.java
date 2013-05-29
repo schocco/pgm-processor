@@ -213,7 +213,7 @@ public class MainWindow {
 		smooth.setText("smoothen");
 		smooth.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				currentImage = PgmProcessor.smooth(currentImage, 3);
+				currentImage = PgmProcessor.smooth(currentImage, 9);
 			};
 		});
 	}

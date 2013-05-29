@@ -87,13 +87,12 @@ public class PgmProcessor {
 				try{
 					stats.addValue(pixels[r][c] & 0xff);
 				} catch(ArrayIndexOutOfBoundsException e){
-					logger.debug("message" + e.getMessage());
+					logger.debug("message: " + e.getMessage());
 					//ignore out of bounds.
 					//occurs for corner/border pixels only
 				}
 			}
 		}
-		logger.debug("Collected " + stats.getN() + " pixel values with an average of " + stats.getMean());
 		// Compute some statistics
 		byte mean = (byte) stats.getMean();
 		return mean;
@@ -151,7 +150,7 @@ public class PgmProcessor {
 		sw.write(String.format("%d %d", img.getWidth(), img.getHeight()));
 		sw.write(linesep);
 		sw.write(img.getMaxValue() + " ");
-		//sw.write(linesep);
+		sw.write(linesep);
 
 		logger.debug("Header string to be written: \n" + sw.toString());
 		
