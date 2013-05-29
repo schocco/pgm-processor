@@ -10,4 +10,16 @@ package com.is_gr8.imageprocessor.blur;
  */
 public class PixelBucket {
 
+	/** Size of the bucket (NxN pixels). */
+	private int size;
+	/** row position of the pixel this bucket belongs to. */
+	private int row;
+	/** col position of the pixel this bucket belongs to. */
+	private int col;
+	/** 2d array containing the pixel and its
+	 * surrounding pixels. The first element is the upper left pixel. */
+	private int[][] pixels = null;
+	
+	
+	
 }
