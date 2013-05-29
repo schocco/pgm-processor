@@ -72,7 +72,7 @@ public class PgmProcessor {
 		// 0  X X X _ X X X
 		// 1  X X X X X X X
 		// 2  X X X X X X X
-		// 3  X X X X X X X
+		// 3  X X X X X X X		
 		
 		// Get a DescriptiveStatistics instance
 		DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -88,6 +88,7 @@ public class PgmProcessor {
 					stats.addValue(pixels[r][c] & 0xff);
 				} catch(ArrayIndexOutOfBoundsException e){
 					logger.debug("message: " + e.getMessage());
+					//TODO: use mid pixel instead
 					//ignore out of bounds.
 					//occurs for corner/border pixels only
 				}
@@ -96,6 +97,8 @@ public class PgmProcessor {
 		// Compute some statistics
 		byte mean = (byte) stats.getMean();
 		return mean;
+		//TODO: multiply bucket with mask/kernel
+		//kernel.addMask(stats)
 	}
 
 	/**
@@ -149,7 +152,7 @@ public class PgmProcessor {
 		sw.write(linesep);
 		sw.write(String.format("%d %d", img.getWidth(), img.getHeight()));
 		sw.write(linesep);
-		sw.write(img.getMaxValue() + " ");
+		sw.write(img.getMaxValue() + "");
 		sw.write(linesep);
 
 		logger.debug("Header string to be written: \n" + sw.toString());
