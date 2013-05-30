@@ -48,6 +48,7 @@ public class PixelBucket {
 	/**
 	 * Stateful way of adding pixels. This method automatically increments an internal counter,
 	 * starting from the top left corner of the bucket.
+	 * The pixel value is stored in the buckets matrix ({@link #pixels})
 	 * 
 	 * @param pixel the pixel value
 	 */
@@ -57,16 +58,28 @@ public class PixelBucket {
 		}
 		
 		int row = getRowFor(pixelcounter);
-		int col = getRowFor(pixelcounter);
+		int col = getColFor(pixelcounter);
 		pixelcounter++;
 		pixels[row][col] = pixel;
 		sum += pixel;
 	}
 	
-	
+	/**
+	 * 
+	 * @param pixelcounter2
+	 * @return column index
+	 */
+	private int getColFor(int pixelcounter2) {
+		return (pixelcounter2 - 1) % size;
+	}
+
+	/**
+	 * 
+	 * @param pixelcounter2
+	 * @return row index
+	 */
 	private int getRowFor(int pixelcounter2) {
-		// TODO Auto-generated method stub
-		return 0;
+		return (pixelcounter2 -1 ) / size;
 	}
 
 	// --------------------------
