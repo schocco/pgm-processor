@@ -10,5 +10,7 @@ package com.is_gr8.imageprocessor.blur;
  * 
  */
 public class Kernel {
+	/** 2d array containing the weights of the kernel. */
+	private int[][] weights = null;
 
 }
