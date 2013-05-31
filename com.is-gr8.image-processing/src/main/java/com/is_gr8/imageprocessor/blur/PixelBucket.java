@@ -22,7 +22,7 @@ public class PixelBucket {
 	 * surrounding pixels. The first element is the upper left pixel. */
 	private int[][] pixels = null;
 	/**pixel counter. incremented for each added pixel. */
-	int pixelcounter = 0;
+	private int pixelcounter = 1;
 	
 	/**
 	 * 
@@ -56,11 +56,10 @@ public class PixelBucket {
 		if(pixelcounter > size*size){
 			throw new IllegalStateException("The bucket is full already (and so am I)!");
 		}
-		
 		int row = getRowFor(pixelcounter);
 		int col = getColFor(pixelcounter);
-		pixelcounter++;
 		pixels[row][col] = pixel;
+		pixelcounter++;
 		sum += pixel;
 	}
 	

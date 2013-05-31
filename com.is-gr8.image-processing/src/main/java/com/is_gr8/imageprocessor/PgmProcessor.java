@@ -7,9 +7,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+
+import com.is_gr8.imageprocessor.blur.PixelBucket;
 
 /**
  * @author rocco
@@ -54,51 +56,53 @@ public class PgmProcessor {
 	public static PgmImage smooth(final PgmImage img, final int intensity){
 		byte[][] pixels = img.getPixels();
 		byte[][] blurred = new byte[pixels.length][pixels[0].length];
+		ArrayList<PixelBucket> buckets = new ArrayList<PixelBucket>();
 		
+		//this loop could be a subtask, applied on a row basis. (4 rows for each task e.g.)
+		//all rows are equally large, perfect for a workerpool framework
 		for(int row=0; row<pixels.length; row++){
 			for(int col=0; col<pixels[row].length; col++){
-				blurred[row][col] = getAverageValue(pixels, row, col, intensity);
+				//buckets.add(getBucket(pixels, row, col, intensity));
+				PixelBucket bucket = getBucket(pixels, row, col, intensity);
+				blurred[row][col] = (byte) (bucket.getSum() / (int) Math.pow(bucket.getSize(), 2) & 0xff);
+				logger.debug(String.format("Original value was: %d - blurred to: %d", pixels[row][col], blurred[row][col]));
 			}
 		}
 		img.setPixels(blurred);
 		return img;
 	}
 	
-	private static byte getAverageValue(byte[][] pixels, int row, int col, int intensity) {
-		//    3 2 1 0 1 2 3
-		// 3  X X X X X X X
-		// 2  X X X X X X X
-		// 1  X X X X X X X
-		// 0  X X X _ X X X
-		// 1  X X X X X X X
-		// 2  X X X X X X X
-		// 3  X X X X X X X		
-		
-		// Get a DescriptiveStatistics instance
-		DescriptiveStatistics stats = new DescriptiveStatistics();
+	/**
+	 * 
+	 * @param pixels the array with the original image data
+	 * @param row row position (index, zero-based)
+	 * @param col column position (index, zero-based)
+	 * @param intensity size of the bucket
+	 * @return the bucket with the surrounding pixels
+	 */
+	private static PixelBucket getBucket(final byte[][] pixels, final int row, final int col, final int intensity) {
+
 		//distance from the central pixel
-		int distance = intensity - 1 / 2;
+		int distance = (intensity - 1) / 2;
 		//iterate through the array to collect all surrounding pixels
 		int rowcount = row + distance;
 		int colcount = col + distance;
+		//the bucket to be returned
+		PixelBucket bucket = new PixelBucket(intensity, row, col);
 		
-		for(int r = row - distance; row < rowcount; row++){
-			for(int c = col - distance; col < colcount; col++){
+		for(int r = row - distance; r < rowcount; r++){
+			for(int c = col - distance; c < colcount; c++){
 				try{
-					stats.addValue(pixels[r][c] & 0xff);
+					bucket.addPixel((int) pixels[r][c] & 0xff);
 				} catch(ArrayIndexOutOfBoundsException e){
-					logger.debug("message: " + e.getMessage());
-					//TODO: use mid pixel instead
-					//ignore out of bounds.
-					//occurs for corner/border pixels only
+					// occurs for corner/border pixels only
+					// use the mid-pixel 
+					logger.debug(String.format("Out of bounds for row %d and col %d. Using mid-pixel instead (%d, %d)", r, c, row, col));
+					bucket.addPixel((int) pixels[row][col] & 0xff);
 				}
 			}
 		}
-		// Compute some statistics
-		byte mean = (byte) stats.getMean();
-		return mean;
-		//TODO: multiply bucket with mask/kernel
-		//kernel.addMask(stats)
+		return bucket;
 	}
 
 	/**
