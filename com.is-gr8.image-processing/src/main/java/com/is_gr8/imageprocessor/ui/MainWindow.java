@@ -28,13 +28,15 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.is_gr8.imageprocessor.ImageEvent;
+import com.is_gr8.imageprocessor.ImageEventListener;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 
 /**
  * @author rocco The application window.
  */
-public class MainWindow {
+public class MainWindow{
 	/** logger. */
 	private Logger logger = Logger.getLogger(MainWindow.class);
 	/** shell width. */
@@ -70,6 +72,11 @@ public class MainWindow {
 					currentImage.addListener(histoComposite);
 					
 					currentImage.imgOpened();
+					
+					// update menu options
+					saveMenuItem.setEnabled(true);
+					smoothMenuItem.setEnabled(true);
+					invertMenuItem.setEnabled(true);
 					
 					// update scroller size info for proper scroll bars
 					Rectangle r = imginfoScroller.getClientArea();
@@ -131,6 +138,18 @@ public class MainWindow {
 			}
 		};
 	};
+	/** the windows menu bar. */
+	private Menu appMenuBar;
+	/** file menu. */
+	private MenuItem fileMenu;
+	/** open option in the menu. */
+	private MenuItem openMenuItem;
+	/** save option in the menu. */
+	private MenuItem saveMenuItem;
+	/** functions menu. */
+	private MenuItem functionsMenu;
+	private MenuItem invertMenuItem;
+	private MenuItem smoothMenuItem;
 
 	/**
 	 * Create and display the shell.
@@ -166,8 +185,7 @@ public class MainWindow {
 	 * Adds a menu to the window for opening and saving files.
 	 */
 	private void initMenuBar() {
-		// add menu bar
-		Menu appMenuBar = shell.getDisplay().getMenuBar();
+		appMenuBar = shell.getDisplay().getMenuBar();
 		if (appMenuBar == null) {
 			appMenuBar = new Menu(shell, SWT.BAR);
 			shell.setMenuBar(appMenuBar);
@@ -175,43 +193,44 @@ public class MainWindow {
 		Menu dropdown = new Menu(appMenuBar);
 		Menu dropdown2 = new Menu(appMenuBar);
 
-		// FILE TREE
-		MenuItem file = new MenuItem(appMenuBar, SWT.CASCADE);
-		file.setText("File");
-		file.setMenu(dropdown);
+		fileMenu = new MenuItem(appMenuBar, SWT.CASCADE);
+		fileMenu.setText("File");
+		fileMenu.setMenu(dropdown);
 
-		MenuItem open = new MenuItem(dropdown, SWT.PUSH);
-		open.setText("Open...");
-		open.addSelectionListener(openSelectionAdapter);
+		openMenuItem = new MenuItem(dropdown, SWT.PUSH);
+		openMenuItem.setText("Open...");
+		openMenuItem.addSelectionListener(openSelectionAdapter);
 
-		MenuItem save = new MenuItem(dropdown, SWT.PUSH);
-		save.setText("Save as...");
-		save.addSelectionListener(saveSelectionAdapter);
+		saveMenuItem = new MenuItem(dropdown, SWT.PUSH);
+		saveMenuItem.setEnabled(false);
+		saveMenuItem.setText("Save...");
+		saveMenuItem.addSelectionListener(saveSelectionAdapter);
 
-		MenuItem exit = new MenuItem(dropdown, SWT.PUSH);
-		exit.setText("Exit");
-		exit.addSelectionListener(new SelectionAdapter() {
+		MenuItem exitMenuItem = new MenuItem(dropdown, SWT.PUSH);
+		exitMenuItem.setText("Exit");
+		exitMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				shell.getDisplay().dispose();
 			};
 		});
 
-		// FUNCTIONS TREE
-		MenuItem functions = new MenuItem(appMenuBar, SWT.CASCADE);
-		functions.setText("Functions");
-		functions.setMenu(dropdown2);
+		functionsMenu = new MenuItem(appMenuBar, SWT.CASCADE);
+		functionsMenu.setText("Functions");
+		functionsMenu.setMenu(dropdown2);
 
-		MenuItem invert = new MenuItem(dropdown2, SWT.PUSH);
-		invert.setText("invert");
-		invert.addSelectionListener(new SelectionAdapter() {
+		invertMenuItem = new MenuItem(dropdown2, SWT.PUSH);
+		invertMenuItem.setText("invert");
+		invertMenuItem.setEnabled(false);
+		invertMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				currentImage = PgmProcessor.invert(currentImage, false);
 			};
 		});
 		
-		MenuItem smooth = new MenuItem(dropdown2, SWT.PUSH);
-		smooth.setText("smoothen");
-		smooth.addSelectionListener(new SelectionAdapter() {
+		smoothMenuItem = new MenuItem(dropdown2, SWT.PUSH);
+		smoothMenuItem.setText("smoothen");
+		smoothMenuItem.setEnabled(false);
+		smoothMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				currentImage = PgmProcessor.smooth(currentImage, 9);
 			};
