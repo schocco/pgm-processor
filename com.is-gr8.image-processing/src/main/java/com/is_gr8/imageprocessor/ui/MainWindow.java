@@ -12,6 +12,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -177,6 +178,7 @@ public class MainWindow{
 	/** initializes the UI. */
 	private void init() {
 		shell.setLayout(new GridLayout(1, true));
+		shell.setImage(new Image(shell.getDisplay(), "shell.gif"));
 		initMenuBar();
 		initTabFolder();
 	}
