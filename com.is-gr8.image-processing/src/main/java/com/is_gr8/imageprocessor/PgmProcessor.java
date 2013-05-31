@@ -65,7 +65,6 @@ public class PgmProcessor {
 				//buckets.add(getBucket(pixels, row, col, intensity));
 				PixelBucket bucket = getBucket(pixels, row, col, intensity);
 				blurred[row][col] = (byte) (bucket.getSum() / (int) Math.pow(bucket.getSize(), 2) & 0xff);
-				logger.debug(String.format("Original value was: %d - blurred to: %d", pixels[row][col], blurred[row][col]));
 			}
 		}
 		img.setPixels(blurred);
@@ -97,7 +96,6 @@ public class PgmProcessor {
 				} catch(ArrayIndexOutOfBoundsException e){
 					// occurs for corner/border pixels only
 					// use the mid-pixel 
-					logger.debug(String.format("Out of bounds for row %d and col %d. Using mid-pixel instead (%d, %d)", r, c, row, col));
 					bucket.addPixel((int) pixels[row][col] & 0xff);
 				}
 			}

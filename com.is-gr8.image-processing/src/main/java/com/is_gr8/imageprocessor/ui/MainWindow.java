@@ -28,8 +28,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
-import com.is_gr8.imageprocessor.ImageEvent;
-import com.is_gr8.imageprocessor.ImageEventListener;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 
@@ -148,7 +146,9 @@ public class MainWindow{
 	private MenuItem saveMenuItem;
 	/** functions menu. */
 	private MenuItem functionsMenu;
+	/** invert function in the menu. */
 	private MenuItem invertMenuItem;
+	/** smooth function in the menu. */
 	private MenuItem smoothMenuItem;
 
 	/**
