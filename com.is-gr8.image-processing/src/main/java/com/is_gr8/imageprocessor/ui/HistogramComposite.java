@@ -43,7 +43,7 @@ public class HistogramComposite extends Composite implements ImageEventListener{
 		Chart chart = new Chart(this, SWT.NONE);
 		    
 		// set titles
-		chart.getTitle().setText("Bar Chart Example");
+		chart.getTitle().setText("Histogram");
 		chart.getAxisSet().getXAxis(0).getTitle().setText("Color value");
 		chart.getAxisSet().getYAxis(0).getTitle().setText("Occurences");
 
