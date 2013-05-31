@@ -96,7 +96,7 @@ public class MainWindow {
 			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 			String[] extensions = { "*.pgm" };
 			dialog.setFilterExtensions(extensions);
-			dialog.setFileName("image.pgm");
+			dialog.setFileName(currentImage.getFile().getName());
 			String path = dialog.open();
 			if (path != null) {
 				logger.debug("Save image to: " + path);
