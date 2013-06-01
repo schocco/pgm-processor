@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
+import com.is_gr8.imageprocessor.blur.Kernel;
 
 /**
  * @author rocco The application window.
@@ -234,7 +235,8 @@ public class MainWindow{
 		smoothMenuItem.setEnabled(false);
 		smoothMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				currentImage = PgmProcessor.smooth(currentImage, 9);
+				//TODO: options dialog to configure size and blur mask
+				currentImage = PgmProcessor.smooth(currentImage, 9, Kernel.getSquareKernel(5));
 			};
 		});
 	}

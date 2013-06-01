@@ -23,6 +23,8 @@ public class PixelBucket {
 	private int[][] pixels = null;
 	/**pixel counter. incremented for each added pixel. */
 	private int pixelcounter = 1;
+	/** Kernel to use for blurring. */
+	private Kernel kernel;
 	
 	/**
 	 * 
@@ -39,10 +41,11 @@ public class PixelBucket {
 	 * @param row row position of the pixel
 	 * @param col col position of the pixel
 	 */
-	public PixelBucket(int size, int row, int col){
-		this(size);
+	public PixelBucket(int row, int col, final Kernel kernel){
+		this(kernel.getSize());
 		this.row = row;
 		this.col = col;
+		this.kernel = kernel;
 	}
 	
 	/**

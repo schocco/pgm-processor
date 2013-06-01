@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import com.is_gr8.imageprocessor.blur.Kernel;
 import com.is_gr8.imageprocessor.blur.PixelBucket;
 
 /**
@@ -53,7 +54,14 @@ public class PgmProcessor {
 		return pgm;
 	}
 	
-	public static PgmImage smooth(final PgmImage img, final int intensity){
+	/**
+	 * 
+	 * @param img
+	 * @param intensity
+	 * @param kernel The kernel to use (e.g. Gaussian)
+	 * @return
+	 */
+	public static PgmImage smooth(final PgmImage img, final int intensity, final Kernel kernel){
 		byte[][] pixels = img.getPixels();
 		byte[][] blurred = new byte[pixels.length][pixels[0].length];
 		ArrayList<PixelBucket> buckets = new ArrayList<PixelBucket>();
@@ -63,8 +71,10 @@ public class PgmProcessor {
 		for(int row=0; row<pixels.length; row++){
 			for(int col=0; col<pixels[row].length; col++){
 				//buckets.add(getBucket(pixels, row, col, intensity));
-				PixelBucket bucket = getBucket(pixels, row, col, intensity);
+				PixelBucket bucket = getBucket(pixels, row, col, kernel);
+				//TODO: change to dynamic kernel values
 				blurred[row][col] = (byte) (bucket.getSum() / (int) Math.pow(bucket.getSize(), 2) & 0xff);
+				
 			}
 		}
 		img.setPixels(blurred);
@@ -79,15 +89,15 @@ public class PgmProcessor {
 	 * @param intensity size of the bucket
 	 * @return the bucket with the surrounding pixels
 	 */
-	private static PixelBucket getBucket(final byte[][] pixels, final int row, final int col, final int intensity) {
-
+	private static PixelBucket getBucket(final byte[][] pixels, final int row, final int col, final Kernel kernel) {
+		int intensity = kernel.getSize();
 		//distance from the central pixel
 		int distance = (intensity - 1) / 2;
 		//iterate through the array to collect all surrounding pixels
 		int rowcount = row + distance;
 		int colcount = col + distance;
 		//the bucket to be returned
-		PixelBucket bucket = new PixelBucket(intensity, row, col);
+		PixelBucket bucket = new PixelBucket(row, col, kernel);
 		
 		for(int r = row - distance; r < rowcount; r++){
 			for(int c = col - distance; c < colcount; c++){
