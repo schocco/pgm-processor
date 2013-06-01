@@ -63,7 +63,7 @@ public class PixelBucket {
 		int col = getColFor(pixelcounter);
 		pixels[row][col] = pixel;
 		pixelcounter++;
-		sum += pixel;
+		sum += pixel * kernel.getWeights()[row][col];
 	}
 	
 	/**

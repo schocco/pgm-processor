@@ -14,6 +14,8 @@ public class Kernel {
 	private int size;
 	/** 2d array containing the weights of the kernel. */
 	private int[][] weights = null;
+	/** sum of all weights. */
+	private int sum = 0;
 	
 	/**
 	 * @param size number of rows/cols
@@ -47,6 +49,7 @@ public class Kernel {
 				k.weights[r][c] = 1;
 			}
 		}
+		k.sum = size * size;
 		return k;
 	}
 	
@@ -62,6 +65,13 @@ public class Kernel {
 	 */
 	public final int[][] getWeights() {
 		return weights;
+	}
+
+	/**
+	 * @return the sum
+	 */
+	public final int getSum() {
+		return sum;
 	}
 
 }

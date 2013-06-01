@@ -55,6 +55,8 @@ public class MainWindow{
 	private ScrolledComposite imginfoScroller;
 	/** the composite which contains the histogram for the current image. */
 	private HistogramComposite histoComposite;
+	/** tab containing the rendered image. */
+	private PreviewComposite previewComposite;
 	/** selection adapter for the open menu item. */
 	private SelectionAdapter openSelectionAdapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
@@ -70,6 +72,7 @@ public class MainWindow{
 					currentImage = new PgmImage(selectedFile);
 					currentImage.addListener(imgInfoComposite);
 					currentImage.addListener(histoComposite);
+					currentImage.addListener(previewComposite);
 					
 					currentImage.imgOpened();
 					
@@ -237,7 +240,7 @@ public class MainWindow{
 			public void widgetSelected(SelectionEvent e) {
 				Kernel k = new BlurOptionsDialog(shell, SWT.NONE).open();
 				if(k != null){
-					currentImage = PgmProcessor.smooth(currentImage, k);
+					currentImage = PgmProcessor.blur(currentImage, k);
 				}				
 			};
 		});
@@ -284,26 +287,16 @@ public class MainWindow{
 		histoComposite = new HistogramComposite(tabFolder, SWT.NONE);
 		histoComposite.update();
 		imgHisto.setControl(histoComposite);
-		// experimental scroll pane
-		// set the minimum width and height of the scrolled content - method 2
-		final ScrolledComposite sc2 = new ScrolledComposite(tabFolder,
-				SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		TabItem exp = new TabItem(tabFolder, SWT.NULL);
-		exp.setControl(sc2);
-
-		final Composite c2 = new Composite(sc2, SWT.NONE);
-		sc2.setContent(c2);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 4;
-		c2.setLayout(layout);
 
 		// the picture preview
 		TabItem imgPreview = new TabItem(tabFolder, SWT.NULL);
 		imgPreview.setText("Preview");
-		Text prevtext = new Text(tabFolder, SWT.BORDER | SWT.MULTI);
-		prevtext.setText("This is the info tab ");
-		imgPreview.setControl(prevtext);
-
+		
+		previewComposite = new PreviewComposite(tabFolder, SWT.NONE);
+		previewComposite.setDisplay(shell.getDisplay());
+		imgPreview.setControl(previewComposite);
+		
+		
 		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
 				1));
 		tabFolder.addSelectionListener(new SelectionListener() {

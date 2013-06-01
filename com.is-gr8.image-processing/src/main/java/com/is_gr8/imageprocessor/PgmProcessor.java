@@ -61,7 +61,7 @@ public class PgmProcessor {
 	 * @param kernel The kernel to use (e.g. Gaussian)
 	 * @return
 	 */
-	public static PgmImage smooth(final PgmImage img, final Kernel kernel){
+	public static PgmImage blur(final PgmImage img, final Kernel kernel){
 		byte[][] pixels = img.getPixels();
 		byte[][] blurred = new byte[pixels.length][pixels[0].length];
 		
@@ -71,8 +71,8 @@ public class PgmProcessor {
 			for(int col=0; col<pixels[row].length; col++){
 				//buckets.add(getBucket(pixels, row, col, intensity));
 				PixelBucket bucket = getBucket(pixels, row, col, kernel);
-				//TODO: change to dynamic kernel values
-				blurred[row][col] = (byte) (bucket.getSum() / (int) Math.pow(bucket.getSize(), 2) & 0xff);
+				//FIXME: this yields values that are lower than the original pixel, darkening the whole image
+				blurred[row][col] = (byte) (bucket.getSum() / kernel.getSum());
 				
 			}
 		}
