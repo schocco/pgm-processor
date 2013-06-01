@@ -6,11 +6,9 @@ package com.is_gr8.imageprocessor.ui;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -25,10 +23,14 @@ import com.is_gr8.imageprocessor.PgmImage;
  *
  */
 public class PreviewComposite extends Composite implements ImageEventListener{
+	/** image data for the creation of the swt image. */
 	private ImageData idata;
+	/** the display as used in the main window. */
 	private Display display;
-	Logger logger = Logger.getLogger(PreviewComposite.class);
-	Label imgLabel;
+	/** logger. */
+	private Logger logger = Logger.getLogger(PreviewComposite.class);
+	/** label which wraps the img. */
+	private Label imgLabel;
 	
 	/**
 	 * @param arg0
@@ -41,30 +43,24 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 	}
 	
 	public void drawImage(PgmImage pgm){
-		//TODO: draw image from byte array stored in pgm object
-		
-		int depth = 8;
-		PaletteData palette = new PaletteData(0, 0, 0);
-		
+		//create image data from pgm object
+		int depth = 8; //TODO: this should be stored in the pgm object
+		PaletteData palette = new PaletteData(255, 255, 255);
 		idata = new ImageData(pgm.getWidth(), pgm.getHeight(), depth, palette);
 		
-		byte[][] px = pgm.getPixels();
-		
+		//copy bytes into swt image data obj
+		byte[][] px = pgm.getPixels();		
+		int bytecounter = 0;
 		for(int y = 0; y < px.length; y++){
 			for(int x = 0; x < px[y].length; x++){
-				idata.setPixel(x, y, px[y][x]);
+				//idata.setPixel(x, y, px[y][x]);
+				idata.data[bytecounter++] = px[y][x];
 			}
 		}
-
-		Image myImage = new Image( display, pgm.getFile().getAbsolutePath());
-		ImageData a = myImage.getImageData();
-		logger.debug("Opened pgm file with SWT...");
-		logger.debug("Comparing image data");
-		for(int i = 0; i < 60; i++){
-			logger.debug("swt:\t" + (a.data[i*4+1] & 0xff) + "\town:\t " + (pgm.getPixels()[0][i] & 0xff));
-		}
-		imgLabel.setImage( myImage );
 		
+		//create and display image
+		Image img = new Image(display, idata);
+		imgLabel.setImage(img);
 		this.layout();
 	}
 	
@@ -95,8 +91,7 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 	 */
 	@Override
 	public void imageSaved(ImageEvent e) {
-		drawImage(e.getImage());
-		
+		//can be ignored
 	}
 
 	/* (non-Javadoc)
@@ -104,8 +99,7 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 	 */
 	@Override
 	public void imageHeaderChanged(ImageEvent e) {
-		// TODO Auto-generated method stub
-		
+		//can be ignored		
 	}
 
 	/* (non-Javadoc)
