@@ -59,11 +59,11 @@ public class PixelBucket {
 		if(pixelcounter > size*size){
 			throw new IllegalStateException("The bucket is full already (and so am I)!");
 		}
-		int row = getRowFor(pixelcounter);
-		int col = getColFor(pixelcounter);
-		pixels[row][col] = pixel;
+		int r = getRowFor(pixelcounter);
+		int c = getColFor(pixelcounter);
+		pixels[r][c] = pixel;
 		pixelcounter++;
-		sum += pixel * kernel.getWeights()[row][col];
+		sum += pixel * kernel.getWeights()[r][c];
 	}
 	
 	/**

@@ -67,12 +67,19 @@ public class PgmProcessor {
 		
 		//this loop could be a subtask, applied on a row basis. (4 rows for each task e.g.)
 		//all rows are equally large, perfect for a workerpool framework
+		outerloop:
 		for(int row=0; row<pixels.length; row++){
 			for(int col=0; col<pixels[row].length; col++){
 				//buckets.add(getBucket(pixels, row, col, intensity));
 				PixelBucket bucket = getBucket(pixels, row, col, kernel);
-				//FIXME: this yields values that are lower than the original pixel, darkening the whole image
-				blurred[row][col] = (byte) (bucket.getSum() / kernel.getSum());
+				try{
+					blurred[row][col] = (byte) (bucket.getSum() / kernel.getSum());
+				} catch(ArithmeticException ex){
+					// could occur when the kernel wasnt initialized properly.
+					blurred = pixels;
+					break outerloop;
+				}
+				
 				
 			}
 		}
@@ -98,14 +105,14 @@ public class PgmProcessor {
 		//the bucket to be returned
 		PixelBucket bucket = new PixelBucket(row, col, kernel);
 		
-		for(int r = row - distance; r < rowcount; r++){
-			for(int c = col - distance; c < colcount; c++){
+		for(int r = row - distance; r <= rowcount; r++){
+			for(int c = col - distance; c <= colcount; c++){
 				try{
-					bucket.addPixel((int) pixels[r][c] & 0xff);
+					bucket.addPixel((int) (pixels[r][c] & 0xff));
 				} catch(ArrayIndexOutOfBoundsException e){
 					// occurs for corner/border pixels only
 					// use the mid-pixel 
-					bucket.addPixel((int) pixels[row][col] & 0xff);
+					bucket.addPixel((int) (pixels[row][col] & 0xff));
 				}
 			}
 		}
