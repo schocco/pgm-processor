@@ -235,8 +235,10 @@ public class MainWindow{
 		smoothMenuItem.setEnabled(false);
 		smoothMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//TODO: options dialog to configure size and blur mask
-				currentImage = PgmProcessor.smooth(currentImage, 9, Kernel.getSquareKernel(5));
+				Kernel k = new BlurOptionsDialog(shell, SWT.NONE).open();
+				if(k != null){
+					currentImage = PgmProcessor.smooth(currentImage, k);
+				}				
 			};
 		});
 	}

@@ -61,10 +61,9 @@ public class PgmProcessor {
 	 * @param kernel The kernel to use (e.g. Gaussian)
 	 * @return
 	 */
-	public static PgmImage smooth(final PgmImage img, final int intensity, final Kernel kernel){
+	public static PgmImage smooth(final PgmImage img, final Kernel kernel){
 		byte[][] pixels = img.getPixels();
 		byte[][] blurred = new byte[pixels.length][pixels[0].length];
-		ArrayList<PixelBucket> buckets = new ArrayList<PixelBucket>();
 		
 		//this loop could be a subtask, applied on a row basis. (4 rows for each task e.g.)
 		//all rows are equally large, perfect for a workerpool framework

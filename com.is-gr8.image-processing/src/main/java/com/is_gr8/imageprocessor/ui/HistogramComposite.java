@@ -33,6 +33,10 @@ public class HistogramComposite extends Composite implements ImageEventListener{
 		this.setLayout(new FillLayout());
 	}
 	
+	/**
+	 * Draw a new Histogram for the image passed in as argument
+	 * @param pgm new image
+	 */
 	public void update(PgmImage pgm){
 		//clean up old contents
 		for(Control x : this.getChildren()){
