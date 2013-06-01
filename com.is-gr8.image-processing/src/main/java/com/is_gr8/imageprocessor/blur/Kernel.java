@@ -1,5 +1,10 @@
 package com.is_gr8.imageprocessor.blur;
 
+import org.apache.commons.math3.analysis.function.Gaussian;
+import org.apache.log4j.Logger;
+
+
+
 /**
  * created May 29, 2013
  *
@@ -16,6 +21,8 @@ public class Kernel {
 	private int[][] weights = null;
 	/** sum of all weights. */
 	private int sum = 0;
+	/** logger. */
+	private static Logger logger = Logger.getLogger(Kernel.class);
 	
 	/**
 	 * @param size number of rows/cols
@@ -33,7 +40,40 @@ public class Kernel {
 	public static Kernel getGaussianKernel(final int size){
 		Kernel k = new Kernel(size);
 		//TODO: set gaussian blur mask
+		int mean = size/2;
+		int sigma = 1;
+		Gaussian nd = new Gaussian(mean, sigma);
+		
+		double[] multipliers = new double[size];
+		//get row of numbers
+		double s = 1.0 / nd.value(size);
+		System.out.println("s = " + s);
+		
+		for(int i=0; i< size; i++){
+			multipliers[i] = nd.value(i) * s;
+			logger.debug("" + (nd.value(i) * s));
+		}
+		
+		for(int r=0; r<k.weights.length; r++){
+			for(int c=0; c<k.weights[r].length; c++){
+				double decker = (multipliers[r] * multipliers[c])/Math.pow(multipliers[0], 2);
+				k.weights[r][c] = (int) decker;
+				System.out.print(decker + "\t");
+			}
+			System.out.println();
+		}
 		return k;
+	}
+	
+	public static void main(String[] args){
+		System.out.println("\nsize 3:");
+		getGaussianKernel(3);
+		System.out.println("\nsize 5:");
+		getGaussianKernel(5);
+		System.out.println("\nsize 7:");
+		getGaussianKernel(7);
+		System.out.println("\nsize 9:");
+		getGaussianKernel(9);
 	}
 
 

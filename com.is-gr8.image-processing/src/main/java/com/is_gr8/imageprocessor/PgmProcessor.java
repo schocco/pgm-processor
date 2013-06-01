@@ -3,13 +3,15 @@
  */
 package com.is_gr8.imageprocessor;
 
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import java.net.URL;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.graphics.Image;
 
 import com.is_gr8.imageprocessor.blur.Kernel;
 import com.is_gr8.imageprocessor.blur.PixelBucket;
@@ -191,5 +193,6 @@ public class PgmProcessor {
 		img.setFile(new File(path));
 		
 	}
+
 
 }
