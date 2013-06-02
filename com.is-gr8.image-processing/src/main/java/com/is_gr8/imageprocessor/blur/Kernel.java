@@ -39,32 +39,40 @@ public class Kernel {
 	 */
 	public static Kernel getGaussianKernel(final int size){
 		Kernel k = new Kernel(size);
-		//TODO: set gaussian blur mask
 		int mean = size/2;
-		int sigma = 1;
+		double sigma = 1.02;
 		Gaussian nd = new Gaussian(mean, sigma);
 		
 		double[] multipliers = new double[size];
 		//get row of numbers
-		double s = 1.0 / nd.value(size);
-		System.out.println("s = " + s);
+		double s = 1.0 / nd.value(size-1);
 		
 		for(int i=0; i< size; i++){
 			multipliers[i] = nd.value(i) * s;
-			logger.debug("" + (nd.value(i) * s));
 		}
 		
+		logger.debug("Creating 2d Gaussian Kernel.");
 		for(int r=0; r<k.weights.length; r++){
+			StringBuilder sb = new StringBuilder();
 			for(int c=0; c<k.weights[r].length; c++){
 				double decker = (multipliers[r] * multipliers[c])/Math.pow(multipliers[0], 2);
-				k.weights[r][c] = (int) decker;
-				System.out.print(decker + "\t");
+				k.weights[r][c] = (int) Math.round(decker);
+				k.sum += (int) Math.round(decker);
+				sb.append(String.format("%d\t", k.weights[r][c]));
 			}
-			System.out.println();
+			logger.info(sb.toString());
 		}
+		
+		//FIXME: numbers are pretty large. it might be better to store doubles instead of
+		// integers and to apply the division
+		// directly in the kernel to avoid huge multiplications in the blur process
 		return k;
 	}
 	
+	/**
+	 * @deprecated for testing only
+	 * @param args
+	 */
 	public static void main(String[] args){
 		System.out.println("\nsize 3:");
 		getGaussianKernel(3);
