@@ -2,6 +2,7 @@ package com.is_gr8.imageprocessor.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -18,7 +19,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
@@ -27,8 +27,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.Text;
 
+import com.is_gr8.imageprocessor.Main;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 import com.is_gr8.imageprocessor.blur.Kernel;
@@ -182,7 +182,13 @@ public class MainWindow{
 	/** initializes the UI. */
 	private void init() {
 		shell.setLayout(new GridLayout(1, true));
-		shell.setImage(new Image(shell.getDisplay(), "shell.gif"));
+		InputStream icon = Main.class.getResourceAsStream("/shell.gif");
+		try{
+			shell.setImage(new Image(shell.getDisplay(), icon));
+		} catch(Exception ex){
+			logger.error("Could not open file shell.gif");
+		}
+		
 		initMenuBar();
 		initTabFolder();
 	}
