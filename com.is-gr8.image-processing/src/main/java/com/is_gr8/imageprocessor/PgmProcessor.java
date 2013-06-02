@@ -75,7 +75,7 @@ public class PgmProcessor {
 				//buckets.add(getBucket(pixels, row, col, intensity));
 				PixelBucket bucket = getBucket(pixels, row, col, kernel);
 				try{
-					blurred[row][col] = (byte) (bucket.getSum() / kernel.getSum());
+					blurred[row][col] = (byte) Math.round(bucket.getBlurredValue());
 				} catch(ArithmeticException ex){
 					// could occur when the kernel wasnt initialized properly.
 					blurred = pixels;

@@ -18,18 +18,21 @@ public class Kernel {
 	/** number of rows/colums of the NxN mask. */
 	private int size;
 	/** 2d array containing the weights of the kernel. */
-	private int[][] weights = null;
-	/** sum of all weights. */
-	private int sum = 0;
+	private double[][] weights = null;
 	/** logger. */
 	private static Logger logger = Logger.getLogger(Kernel.class);
+	/**
+	 * standard deviation to be used for the creation of the gaussian
+	 * convolution mask. Higher values flatten the curve.
+	 */
+	private static final double SIGMA = 1.02;
 	
 	/**
 	 * @param size number of rows/cols
 	 */
 	private Kernel(int size){
 		this.size = size;
-		this.weights = new int[size][size];
+		this.weights = new double[size][size];
 	}
 	
 	/**
@@ -38,50 +41,47 @@ public class Kernel {
 	 * @return gaussian convolution kernel
 	 */
 	public static Kernel getGaussianKernel(final int size){
+		logger.debug("Creating 2d Gaussian Kernel.");
+		
 		Kernel k = new Kernel(size);
 		int mean = size/2;
-		double sigma = 1.02;
-		Gaussian nd = new Gaussian(mean, sigma);
+		double sum = 0.0;
+		Gaussian nd = new Gaussian(mean, SIGMA);
 		
 		double[] multipliers = new double[size];
-		//get row of numbers
-		double s = 1.0 / nd.value(size-1);
-		
+		//get row of numbers and multiply so that corners are 1s
+		double s = 1.0 / nd.value(size-1);		
 		for(int i=0; i< size; i++){
 			multipliers[i] = nd.value(i) * s;
 		}
 		
-		logger.debug("Creating 2d Gaussian Kernel.");
 		for(int r=0; r<k.weights.length; r++){
 			StringBuilder sb = new StringBuilder();
 			for(int c=0; c<k.weights[r].length; c++){
 				double decker = (multipliers[r] * multipliers[c])/Math.pow(multipliers[0], 2);
-				k.weights[r][c] = (int) Math.round(decker);
-				k.sum += (int) Math.round(decker);
-				sb.append(String.format("%d\t", k.weights[r][c]));
+				k.weights[r][c] = Math.round(decker);
+				sum += Math.round(decker);
+				sb.append(String.format("%.1f\t", k.weights[r][c]));
 			}
 			logger.info(sb.toString());
 		}
 		
-		//FIXME: numbers are pretty large. it might be better to store doubles instead of
-		// integers and to apply the division
-		// directly in the kernel to avoid huge multiplications in the blur process
+		divideBySum(k, sum);
+		
 		return k;
 	}
-	
+
 	/**
-	 * @deprecated for testing only
-	 * @param args
+	 * @param kernel
+	 * @param sum the sum of all fields in the kernel
 	 */
-	public static void main(String[] args){
-		System.out.println("\nsize 3:");
-		getGaussianKernel(3);
-		System.out.println("\nsize 5:");
-		getGaussianKernel(5);
-		System.out.println("\nsize 7:");
-		getGaussianKernel(7);
-		System.out.println("\nsize 9:");
-		getGaussianKernel(9);
+	private static void divideBySum(Kernel kernel, double sum) {
+		//divide values by the sum
+		for(int r=0; r<kernel.weights.length; r++){
+			for(int c=0; c<kernel.weights[r].length; c++){
+				kernel.weights[r][c] /= sum;
+			}
+		}
 	}
 
 
@@ -92,12 +92,13 @@ public class Kernel {
 	 */
 	public static Kernel getSquareKernel(final int size){
 		Kernel k = new Kernel(size);
+		double sum = size * size;
 		for(int r = 0; r < k.weights.length; r++){
 			for(int c = 0; c < k.weights[r].length; c++){
 				k.weights[r][c] = 1;
 			}
 		}
-		k.sum = size * size;
+		divideBySum(k, sum);
 		return k;
 	}
 	
@@ -111,15 +112,8 @@ public class Kernel {
 	/**
 	 * @return the weights
 	 */
-	public final int[][] getWeights() {
+	public final double[][] getWeights() {
 		return weights;
-	}
-
-	/**
-	 * @return the sum
-	 */
-	public final int getSum() {
-		return sum;
 	}
 
 }

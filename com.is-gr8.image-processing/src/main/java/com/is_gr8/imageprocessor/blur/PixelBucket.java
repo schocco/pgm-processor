@@ -12,8 +12,12 @@ public class PixelBucket {
 
 	/** Size of the bucket (NxN pixels). */
 	private int size;
-	/** Sum of the pixels contained in the bucket. */
+	/**
+	 * @deprecated replaced by {@link #blurredValue}
+	 * Sum of the pixels contained in the bucket. */
 	private int sum = 0;
+	/** result to be written: the blurred pixel value. */
+	private double blurredValue;
 	/** row position of the pixel this bucket belongs to. */
 	private int row;
 	/** col position of the pixel this bucket belongs to. */
@@ -63,9 +67,12 @@ public class PixelBucket {
 		int c = getColFor(pixelcounter);
 		pixels[r][c] = pixel;
 		pixelcounter++;
-		sum += pixel * kernel.getWeights()[r][c];
+		sum += pixel;
+		blurredValue += (double) pixel * kernel.getWeights()[r][c];
 	}
 	
+
+
 	/**
 	 * 
 	 * @param pixelcounter2
@@ -89,6 +96,14 @@ public class PixelBucket {
 	// --------------------------
 
 	/**
+	 * @return the blurredValue
+	 */
+	public final double getBlurredValue() {
+		return blurredValue;
+	}
+	
+	/**
+	 * @deprecated by {@link #getBlurredValue()}
 	 * @return the size
 	 */
 	public int getSum() {
