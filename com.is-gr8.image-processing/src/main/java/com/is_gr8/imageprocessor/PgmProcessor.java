@@ -79,13 +79,59 @@ public class PgmProcessor {
 				} catch(ArithmeticException ex){
 					// could occur when the kernel wasnt initialized properly.
 					blurred = pixels;
+					logger.error("Could not calculate new pixelvalue. Aborting.");
 					break outerloop;
-				}
-				
-				
+				}	
 			}
 		}
 		img.setPixels(blurred);
+		return img;
+	}
+	
+	/**
+	 * Runs the prewittEdgeDetection on the source image.
+	 * <pre>
+	 * A: source image
+	 * G: gradient magnitude
+	 * 
+	 * G_x: A convergenced with horizontal kernel
+	 * G_y: A convergenced with vertical kernel
+	 * 
+	 * G = sqrt(G_x^2 + G_y^2)
+	 * </pre>
+	 * 
+	 * @param img th eimage to be transformed
+	 * @param horizontal horizontal kernel
+	 * @param vertical vertical kernel
+	 * @return image with changed body values. Pixel values are replaced with gradient magnitude values.
+	 */
+	public static PgmImage prewittEdgeDetection(final PgmImage img, final Kernel horizontal, final Kernel vertical){
+		//TODO: it might be better to generate both kernels inside this method and only accept a size argument
+		byte[][] pixels = img.getPixels();
+		byte[][] edges= new byte[pixels.length][pixels[0].length];
+		
+		//this loop could be a subtask, applied on a row basis. (4 rows for each task e.g.)
+		//all rows are equally large, perfect for a workerpool framework
+		outerloop:
+		for(int row=0; row<pixels.length; row++){
+			for(int col=0; col<pixels[row].length; col++){
+				//buckets.add(getBucket(pixels, row, col, intensity));
+				PixelBucket hozBucket = getBucket(pixels, row, col, horizontal);
+				PixelBucket vertBucket = getBucket(pixels, row, col, vertical);
+				double gy = hozBucket.getBlurredValue();
+				double gx = vertBucket.getBlurredValue();
+				try{
+					double gradient = Math.sqrt(gy * gy + gx * gx);
+					edges[row][col] = (byte) Math.round(gradient);
+				} catch(ArithmeticException ex){
+					// could occur when the kernel wasnt initialized properly.
+					logger.error("Could not calculate new pixelvalue. Aborting.");
+					edges = pixels;
+					break outerloop;
+				}	
+			}
+		}
+		img.setPixels(edges);
 		return img;
 	}
 	
