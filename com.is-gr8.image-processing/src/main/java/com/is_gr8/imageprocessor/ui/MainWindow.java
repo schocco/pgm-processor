@@ -32,6 +32,7 @@ import com.is_gr8.imageprocessor.Main;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 import com.is_gr8.imageprocessor.blur.Kernel;
+import com.is_gr8.imageprocessor.blur.Kernel.Direction;
 
 /**
  * @author rocco The application window.
@@ -79,6 +80,7 @@ public class MainWindow{
 					// update menu options
 					saveMenuItem.setEnabled(true);
 					smoothMenuItem.setEnabled(true);
+					edgeMenuItem.setEnabled(true);
 					invertMenuItem.setEnabled(true);
 					
 					// update scroller size info for proper scroll bars
@@ -155,6 +157,8 @@ public class MainWindow{
 	private MenuItem invertMenuItem;
 	/** smooth function in the menu. */
 	private MenuItem smoothMenuItem;
+	/** edge detection function in the menu. */
+	private MenuItem edgeMenuItem;
 
 	/**
 	 * Create and display the shell.
@@ -248,6 +252,17 @@ public class MainWindow{
 				if(k != null){
 					currentImage = PgmProcessor.blur(currentImage, k);
 				}				
+			};
+		});
+		
+		edgeMenuItem = new MenuItem(dropdown2, SWT.PUSH);
+		edgeMenuItem.setText("edge detection");
+		edgeMenuItem.setEnabled(false);
+		edgeMenuItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				Kernel horizontal = Kernel.getPrewittFilter(3, Direction.HORIZONTAL);
+				Kernel vertical = Kernel.getPrewittFilter(3, Direction.VERTICAL);
+				currentImage = PgmProcessor.prewittEdgeDetection(currentImage, horizontal, vertical);				
 			};
 		});
 	}
