@@ -117,30 +117,37 @@ public class Kernel {
 		double[] row = new double[size];
 		Kernel kernel = new Kernel(size);
 		StringBuilder sb = new StringBuilder();
+		int startvalue = -size/2;
 		
 		switch (direction) {
 		case HORIZONTAL:
 			logger.debug("Creating horizontal prewitt filter...");
-			
-			//create row and fill kernel with rows.
-			int startvalue = -size/2;
-			for(int i = 0; i<row.length; i++){
+			//create row that can be used multiple times
+			for(int i = 0; i < size; i++){
 				sb.append(startvalue + "\t");
 				row[i] = startvalue++;				
 			}
-			for(int i = 0; i<kernel.weights.length; i++){
+			for(int i = 0; i < size; i++){
 				kernel.weights[i] = row;
 				logger.debug(sb.toString());
 			}
 			break;
 		case VERTICAL:
-			//create col and fill rows with cols.
 			logger.debug("Creating vertical prewitt filter...");
+			for(int n = size-1; n >= 0; n--){
+				for(int i = 0; i < size; i++){
+					sb.append(startvalue + "\t");
+					kernel.weights[i][n] = startvalue;					
+				}
+				startvalue++;
+				logger.debug(sb.toString());
+				sb = new StringBuilder();
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("Unsupported filter direction");
 		}
-		return null;
+		return kernel;
 	}
 	
 	

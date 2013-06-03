@@ -17,15 +17,15 @@ public class KernelTest {
 
 	@Test
 	public void testPrewitt() {
-		assertFalse(null == Kernel.getPrewittFilter(3, Direction.HORIZONTAL));
-		assertFalse(null == Kernel.getPrewittFilter(5, Direction.HORIZONTAL));
-		assertFalse(null == Kernel.getPrewittFilter(7, Direction.HORIZONTAL));
-		assertFalse(null == Kernel.getPrewittFilter(9, Direction.HORIZONTAL));
+		assertFalse(null == Kernel.getPrewittFilter(3, Direction.HORIZONTAL).getWeights());
+		assertFalse(null == Kernel.getPrewittFilter(5, Direction.HORIZONTAL).getWeights());
+		assertFalse(null == Kernel.getPrewittFilter(7, Direction.HORIZONTAL).getWeights());
+		assertFalse(null == Kernel.getPrewittFilter(9, Direction.HORIZONTAL).getWeights());
 		
-		assertFalse(null == Kernel.getPrewittFilter(3, Direction.VERTICAL));
-		assertFalse(null == Kernel.getPrewittFilter(5, Direction.VERTICAL));
-		assertFalse(null == Kernel.getPrewittFilter(7, Direction.VERTICAL));
-		assertFalse(null == Kernel.getPrewittFilter(9, Direction.VERTICAL));
+		assertFalse(null == Kernel.getPrewittFilter(3, Direction.VERTICAL).getWeights());
+		assertFalse(null == Kernel.getPrewittFilter(5, Direction.VERTICAL).getWeights());
+		assertFalse(null == Kernel.getPrewittFilter(7, Direction.VERTICAL).getWeights());
+		assertFalse(null == Kernel.getPrewittFilter(9, Direction.VERTICAL).getWeights());
 	}
 
 }
