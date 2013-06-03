@@ -1,4 +1,4 @@
-package com.is_gr8.imageprocessor.blur;
+package com.is_gr8.imageprocessor.convolution;
 
 /**
  * created May 29, 2013
@@ -13,11 +13,13 @@ public class PixelBucket {
 	/** Size of the bucket (NxN pixels). */
 	private int size;
 	/**
-	 * @deprecated replaced by {@link #blurredValue}
+	 * @deprecated replaced by {@link #endValue}
 	 * Sum of the pixels contained in the bucket. */
 	private int sum = 0;
-	/** result to be written: the blurred pixel value. */
-	private double blurredValue;
+	/** 
+	 * Whenever a pixel is added, it is multiplied with the corresponding field in the kernel.
+	 * This field holds the sum of all multiplied pixels. */
+	private double endValue;
 	/** row position of the pixel this bucket belongs to. */
 	private int row;
 	/** col position of the pixel this bucket belongs to. */
@@ -68,7 +70,7 @@ public class PixelBucket {
 		pixels[r][c] = pixel;
 		pixelcounter++;
 		sum += pixel;
-		blurredValue += (double) pixel * kernel.getWeights()[r][c];
+		endValue += (double) pixel * kernel.getWeights()[r][c];
 	}
 	
 
@@ -96,14 +98,15 @@ public class PixelBucket {
 	// --------------------------
 
 	/**
-	 * @return the blurredValue
+	 * See: {@link #endValue}.
+	 * @return the endValue
 	 */
-	public final double getBlurredValue() {
-		return blurredValue;
+	public final double getEndValue() {
+		return endValue;
 	}
 	
 	/**
-	 * @deprecated by {@link #getBlurredValue()}
+	 * @deprecated by {@link #getEndValue()}
 	 * @return the size
 	 */
 	public int getSum() {

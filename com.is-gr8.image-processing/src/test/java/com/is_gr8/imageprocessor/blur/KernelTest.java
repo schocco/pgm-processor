@@ -7,7 +7,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.is_gr8.imageprocessor.blur.Kernel.Direction;
+import com.is_gr8.imageprocessor.convolution.Kernel;
+import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
 
 /**
  * @author rocco

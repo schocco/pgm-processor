@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.TabItem;
 import com.is_gr8.imageprocessor.Main;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
-import com.is_gr8.imageprocessor.blur.Kernel;
-import com.is_gr8.imageprocessor.blur.Kernel.Direction;
+import com.is_gr8.imageprocessor.convolution.Kernel;
+import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
 
 /**
  * @author rocco The application window.

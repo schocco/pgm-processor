@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import com.is_gr8.imageprocessor.blur.Kernel;
+import com.is_gr8.imageprocessor.convolution.Kernel;
 
 /**
  * @author rocco

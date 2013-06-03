@@ -1,4 +1,4 @@
-package com.is_gr8.imageprocessor.blur;
+package com.is_gr8.imageprocessor.convolution;
 
 import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.log4j.Logger;

@@ -13,8 +13,8 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Image;
 
-import com.is_gr8.imageprocessor.blur.Kernel;
-import com.is_gr8.imageprocessor.blur.PixelBucket;
+import com.is_gr8.imageprocessor.convolution.Kernel;
+import com.is_gr8.imageprocessor.convolution.PixelBucket;
 
 /**
  * @author rocco
@@ -75,7 +75,7 @@ public class PgmProcessor {
 				//buckets.add(getBucket(pixels, row, col, intensity));
 				PixelBucket bucket = getBucket(pixels, row, col, kernel);
 				try{
-					blurred[row][col] = (byte) Math.round(bucket.getBlurredValue());
+					blurred[row][col] = (byte) Math.round(bucket.getEndValue());
 				} catch(ArithmeticException ex){
 					// could occur when the kernel wasnt initialized properly.
 					blurred = pixels;
@@ -118,8 +118,8 @@ public class PgmProcessor {
 				//buckets.add(getBucket(pixels, row, col, intensity));
 				PixelBucket hozBucket = getBucket(pixels, row, col, horizontal);
 				PixelBucket vertBucket = getBucket(pixels, row, col, vertical);
-				double gy = hozBucket.getBlurredValue();
-				double gx = vertBucket.getBlurredValue();
+				double gy = hozBucket.getEndValue();
+				double gx = vertBucket.getEndValue();
 				try{
 					double gradient = Math.sqrt(gy * gy + gx * gx);
 					edges[row][col] = (byte) Math.round(gradient);
