@@ -26,6 +26,8 @@ public class Kernel {
 	 * convolution mask. Higher values flatten the curve.
 	 */
 	private static final double SIGMA = 1.02;
+	/** direction. */
+	public enum Direction {HORIZONTAL, VERTICAL};
 	
 	/**
 	 * @param size number of rows/cols
@@ -101,6 +103,50 @@ public class Kernel {
 		divideBySum(k, sum);
 		return k;
 	}
+	
+	/**
+	 * Creates a prewitt edge filter.
+	 * The higher the distance from the central row, the heigher the weight.
+	 * So a row in a 5x5 horizontal kernel will consist of [-2, -1, 0, 1, 2].
+	 * 
+	 * @param size number of rows/cols
+	 * @param direction whether the kernel should be used for horizontal or vertical edge detection
+	 * @return a kernel
+	 */
+	public static Kernel getPrewittFilter(final int size, final Direction direction) {
+		double[] row = new double[size];
+		Kernel kernel = new Kernel(size);
+		StringBuilder sb = new StringBuilder();
+		
+		switch (direction) {
+		case HORIZONTAL:
+			logger.debug("Creating horizontal prewitt filter...");
+			
+			//create row and fill kernel with rows.
+			int startvalue = -size/2;
+			for(int i = 0; i<row.length; i++){
+				sb.append(startvalue + "\t");
+				row[i] = startvalue++;				
+			}
+			for(int i = 0; i<kernel.weights.length; i++){
+				kernel.weights[i] = row;
+				logger.debug(sb.toString());
+			}
+			break;
+		case VERTICAL:
+			//create col and fill rows with cols.
+			logger.debug("Creating vertical prewitt filter...");
+			break;
+		default:
+			throw new IllegalArgumentException("Unsupported filter direction");
+		}
+		return null;
+	}
+	
+	
+	//----------------------------------------------------------
+	// ACCESSORS 
+	//----------------------------------------------------------
 	
 	/**
 	 * @return the size
