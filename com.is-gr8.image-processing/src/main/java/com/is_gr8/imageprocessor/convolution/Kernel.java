@@ -150,6 +150,28 @@ public class Kernel {
 		return kernel;
 	}
 	
+	/**
+	 * 
+	 * @param size size of the kernel (only 5 is a valid size atm)
+	 * @return
+	 */
+	public static Kernel getLaplaceOfGaussian(int size){
+		if(size != 5){
+			throw new RuntimeException("Not yet implemented. Only size 5 Kernels are allowed.");
+		}
+		Kernel kernel = new Kernel(size);
+		
+		//laplace of gaussian hardcoded. ugh.
+		double[][] weigths = {	{0.0, 0.0, -1.0, 0.0, 0.0},
+								{0.0, -1.0, -2.0, -1.0, 0.0},
+								{-1.0, -2.0, 16.0, -2.0, -1.0},
+								{0.0, -1.0, -2.0, -1.0, 0.0},
+								{0.0, 0.0, -1.0, 0.0, 0.0}
+							};
+		kernel.weights = weigths;
+		return kernel;
+	}
+	
 	
 	//----------------------------------------------------------
 	// ACCESSORS 
