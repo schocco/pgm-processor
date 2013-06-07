@@ -264,9 +264,8 @@ public class MainWindow{
 				EdgeOptionsDialog d = new EdgeOptionsDialog(shell, SWT.NONE);
 				KernelType k = d.open();
 				if(k == KernelType.PREWITT){
-					Kernel horizontal = Kernel.getPrewittFilter(3, Direction.HORIZONTAL);
-					Kernel vertical = Kernel.getPrewittFilter(3, Direction.VERTICAL);
-					currentImage = PgmProcessor.prewittEdgeDetection(currentImage, horizontal, vertical);
+					int size = d.getSize();
+					currentImage = PgmProcessor.prewittEdgeDetection(currentImage, size);
 				} else if(k == KernelType.LAPLACE_OF_GAUSSIAN){
 					Kernel kernel = d.getLogKernel();
 					currentImage = PgmProcessor.logEdgeDetection(currentImage, kernel);

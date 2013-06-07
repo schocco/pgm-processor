@@ -15,6 +15,7 @@ import org.eclipse.swt.graphics.Image;
 
 import com.is_gr8.imageprocessor.convolution.Kernel;
 import com.is_gr8.imageprocessor.convolution.PixelBucket;
+import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
 
 /**
  * @author rocco
@@ -105,10 +106,12 @@ public class PgmProcessor {
 	 * @param vertical vertical kernel
 	 * @return image with changed body values. Pixel values are replaced with gradient magnitude values.
 	 */
-	public static PgmImage prewittEdgeDetection(final PgmImage img, final Kernel horizontal, final Kernel vertical){
-		//TODO: it might be better to generate both kernels inside this method and only accept a size argument
+	public static PgmImage prewittEdgeDetection(final PgmImage img, final int size){
 		byte[][] pixels = img.getPixels();
 		byte[][] edges= new byte[pixels.length][pixels[0].length];
+		
+		Kernel horizontal = Kernel.getPrewittFilter(size, Direction.HORIZONTAL);
+		Kernel vertical = Kernel.getPrewittFilter(size, Direction.VERTICAL);
 		
 		//this loop could be a subtask, applied on a row basis. (4 rows for each task e.g.)
 		//all rows are equally large, perfect for a workerpool framework

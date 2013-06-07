@@ -115,11 +115,9 @@ public class PgmProcessorTest {
 	 */
 	@Test
 	public void testPrewittEdgeDetection() {
-		Kernel horizontal = Kernel.getPrewittFilter(5, Direction.HORIZONTAL);
-		Kernel vertical = Kernel.getPrewittFilter(5, Direction.VERTICAL);
 		
 		for(PgmImage pgm : testImages){
-			pgm = PgmProcessor.prewittEdgeDetection(pgm, horizontal, vertical);
+			pgm = PgmProcessor.prewittEdgeDetection(pgm, 5);
 			try {
 				PgmProcessor.writeToDisk(pgm, destination + pgm.getFile().getName() + ".edgePrewitt.pgm");
 			} catch (IOException e) {
