@@ -97,11 +97,7 @@ public class EdgeOptionsDialog extends Dialog {
 	    buttonOK.addListener(SWT.Selection, new Listener() {
 	      public void handleEvent(Event event) {
 	    	  if(type == KernelType.LAPLACE_OF_GAUSSIAN){
-	    		  kernel = Kernel.getLaplaceOfGaussian(5); //TODO: add flexible size option
-	    	  } else {
-	    		  //FIXME: not designed to handle multiple kernels.
-	    		  kernel = Kernel.getPrewittFilter(size, Direction.HORIZONTAL);
-	    		  kernel = Kernel.getPrewittFilter(size, Direction.VERTICAL);
+	    		  kernel = Kernel.getLaplaceOfGaussianKernel(size);
 	    	  }
 	    	  shell.dispose();
 	      }
@@ -109,27 +105,39 @@ public class EdgeOptionsDialog extends Dialog {
 
 	    buttonCancel.addListener(SWT.Selection, new Listener() {
 	      public void handleEvent(Event event) {
-	    	  kernel = null;
+	    	  type = null;
 	    	  shell.dispose();
 	      }
 	    });
 	    
 	    sizeCombo.addListener(SWT.Modify, new Listener() {
 		      public void handleEvent(Event event) {
-		    	  String selection = sizeCombo.getItem(sizeCombo.getSelectionIndex());
-		    	  size = sizeOptions.get(selection);
+		    	  try{
+			    	  String selection = sizeCombo.getItem(sizeCombo.getSelectionIndex());
+			    	  size = sizeOptions.get(selection);		    		  
+		    	  } catch(Exception ex){
+		    		  //ignore
+		    	  }
+
 		      }
 		    });
 	    
-	    typeCombo.addListener(SWT.Modify, new Listener() {
-		      public void handleEvent(Event event) {
-		    	  if(typeCombo.getSelectionIndex() == 0){
-		    		  type = KernelType.LAPLACE_OF_GAUSSIAN;
-		    	  } else{
-		    		  type = KernelType.PREWITT;
-		    	  }
-		      }
-		    });
+		typeCombo.addListener(SWT.Modify, new Listener() {
+			public void handleEvent(Event event) {
+				if (typeCombo.getSelectionIndex() == 0) {
+					type = KernelType.LAPLACE_OF_GAUSSIAN;
+					// hide invalid size options
+					sizeCombo.remove(2, sizeOptions.size()-1);
+					sizeCombo.select(0);
+
+				} else {
+					type = KernelType.PREWITT;
+					// show size options
+					sizeCombo.setItems(sizeOptions.keySet().toArray(new String[sizeOptions.size()]));
+					sizeCombo.select(0);
+				}
+			}
+		});
 	    
 	    shell.addListener(SWT.Traverse, new Listener() {
 	      public void handleEvent(Event event) {

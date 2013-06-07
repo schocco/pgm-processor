@@ -115,7 +115,6 @@ public class PgmProcessorTest {
 	 */
 	@Test
 	public void testPrewittEdgeDetection() {
-		
 		for(PgmImage pgm : testImages){
 			pgm = PgmProcessor.prewittEdgeDetection(pgm, 5);
 			try {
@@ -132,7 +131,7 @@ public class PgmProcessorTest {
 	 */
 	@Test
 	public void testLogEdgeDetection() {
-		Kernel kernel = Kernel.getLaplaceOfGaussian(5);
+		Kernel kernel = Kernel.getLaplaceOfGaussianKernel(5);
 		
 		for(PgmImage pgm : testImages){
 			pgm = PgmProcessor.logEdgeDetection(pgm, kernel);

@@ -15,6 +15,10 @@ import org.apache.log4j.Logger;
  * 
  */
 public class Kernel {
+	/**
+	 * 
+	 */
+	private static final double LOG_SIGMA = 0.8;
 	/** number of rows/colums of the NxN mask. */
 	private int size;
 	/** 2d array containing the weights of the kernel. */
@@ -150,26 +154,102 @@ public class Kernel {
 		return kernel;
 	}
 	
+	
 	/**
 	 * 
+	 * @param size
+	 *            size of the kernel (only 5 is a valid size atm)
+	 * @return
+	 */
+	public static Kernel getLaplaceOfGaussianKernel(int size) {
+		Kernel kernel = new Kernel(size);
+
+		switch (size) {
+			case 3:
+				double[][] weights3 = { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
+				kernel.weights = weights3;
+				break;
+			case 5:
+				double[][] weights5 = { { 0.0, 0.0, -1.0, 0.0, 0.0 },
+						{ 0.0, -1.0, -2.0, -1.0, 0.0 },
+						{ -1.0, -2.0, 16.0, -2.0, -1.0 },
+						{ 0.0, -1.0, -2.0, -1.0, 0.0 },
+						{ 0.0, 0.0, -1.0, 0.0, 0.0 } };
+				kernel.weights = weights5;
+				break;
+			default:
+				throw new IllegalArgumentException("Unsupported kernel size.");
+		}
+		return kernel;
+	}
+
+	/**
+	 * @deprecated Does not return satisfactory results. use hardcoded approximations instead.
 	 * @param size size of the kernel (only 5 is a valid size atm)
 	 * @return
 	 */
-	public static Kernel getLaplaceOfGaussian(int size){
-		if(size != 5){
-			throw new RuntimeException("Not yet implemented. Only size 5 Kernels are allowed.");
-		}
+	public static Kernel calcLaplaceOfGaussianKernel(int size){
 		Kernel kernel = new Kernel(size);
+		logger.debug("Creating Laplace of Gaussian kernel...");
+		//make sure outer corner is 1 when rounded
+		double[][] weights = new double[size][size];
+		double sum = 0.0;
+		double multiplier = 1.0/Kernel.laplaceOfGaussian(0, 0, LOG_SIGMA, size);
+		for(int r = 0; r < size; r++){
+			StringBuilder sb = new StringBuilder();
+			for(int c = 0; c < size; c++){
+				double val = Math.round(multiplier * Kernel.laplaceOfGaussian(r, c, LOG_SIGMA, size));
+				weights[r][c] = val;
+				sb.append(String.format("%.8f\t", val));
+				sum += val;
+			}
+			//logger.debug(sb.toString());
+		}
 		
-		//laplace of gaussian hardcoded. ugh.
-		double[][] weigths = {	{0.0, 0.0, -1.0, 0.0, 0.0},
-								{0.0, -1.0, -2.0, -1.0, 0.0},
-								{-1.0, -2.0, 16.0, -2.0, -1.0},
-								{0.0, -1.0, -2.0, -1.0, 0.0},
-								{0.0, 0.0, -1.0, 0.0, 0.0}
-							};
-		kernel.weights = weigths;
+		//make sure sum is zero, increment fields around the center until
+		// sum is zero
+		logger.debug("Sum is: " + sum);
+		if(sum != 0){
+			//change every field by sum/n_fields to make sure sum is zero
+			double fraction = sum/Math.pow(size, 2);
+			sum = 0;
+			logger.debug("subtracting " + fraction);
+			for(int r = 0; r<size; r++){
+				StringBuilder sb = new StringBuilder();
+				for(int c = 0; c<size; c++){
+					weights[r][c] -= fraction;
+					sb.append(String.format("%.3f\t", weights[r][c]));
+					sum += weights[r][c];
+				}
+				logger.debug(sb.toString());
+			}
+			logger.debug("New sum: " + sum);
+		}
+		kernel.weights = weights;
 		return kernel;
+	}
+	
+	/**
+	 * Laplace of Gaussian function.
+	 * See http://academic.mu.edu/phys/matthysd/web226/Lab02.htm
+	 * 
+	 * @param x 		x coordinate
+	 * @param y 		y coordinate
+	 * @param sigma 	1.4 should be fine as a value
+	 * @param size		size of the kernel. Is used to determine the center/offset for the function
+	 * @return The double value for the given coordinate
+	 */
+	public static double laplaceOfGaussian(int x, int y, double sigma, int size){
+		// LoG(x,y) = -1 / pi*sigma^4 * [ 1 - (x^2+y^2)/(2sigma^2) ] e^(-(x^2+y^2)/(2sigma^2)
+		// coefficient: (x^2+y^2)/(2sigma^2)
+		// LoG(x,y) = -1 / pi*sigma^4 * [ 1 - coefficient) ] e^(- coefficient)
+		final double SIGMA = sigma;
+		x = x - size/2;
+		y = y - size/2;
+		final double coefficient = (Math.pow(x, 2) + Math.pow(y, 2)) / (2 * Math.pow(SIGMA, 2));
+		double result = -1 / (Math.PI * Math.pow(SIGMA, 4)) * (1 - coefficient) * Math.pow(Math.E, -coefficient);
+		
+		return result;
 	}
 	
 	
