@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.is_gr8.imageprocessor.blur;
+package com.is_gr8.imageprocessor.convolution;
 
 import static org.junit.Assert.*;
 
