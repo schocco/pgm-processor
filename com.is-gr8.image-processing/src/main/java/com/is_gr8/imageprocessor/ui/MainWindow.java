@@ -33,6 +33,7 @@ import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
 import com.is_gr8.imageprocessor.convolution.Kernel;
 import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
+import com.is_gr8.imageprocessor.ui.EdgeOptionsDialog.KernelType;
 
 /**
  * @author rocco The application window.
@@ -260,9 +261,17 @@ public class MainWindow{
 		edgeMenuItem.setEnabled(false);
 		edgeMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				Kernel horizontal = Kernel.getPrewittFilter(3, Direction.HORIZONTAL);
-				Kernel vertical = Kernel.getPrewittFilter(3, Direction.VERTICAL);
-				currentImage = PgmProcessor.prewittEdgeDetection(currentImage, horizontal, vertical);				
+				EdgeOptionsDialog d = new EdgeOptionsDialog(shell, SWT.NONE);
+				KernelType k = d.open();
+				if(k == KernelType.PREWITT){
+					Kernel horizontal = Kernel.getPrewittFilter(3, Direction.HORIZONTAL);
+					Kernel vertical = Kernel.getPrewittFilter(3, Direction.VERTICAL);
+					currentImage = PgmProcessor.prewittEdgeDetection(currentImage, horizontal, vertical);
+				} else if(k == KernelType.LAPLACE_OF_GAUSSIAN){
+					Kernel kernel = d.getLogKernel();
+					currentImage = PgmProcessor.logEdgeDetection(currentImage, kernel);
+				}
+				
 			};
 		});
 	}
