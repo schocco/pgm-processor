@@ -3,19 +3,19 @@
  */
 package com.is_gr8.imageprocessor;
 
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
-import org.eclipse.swt.graphics.Image;
 
 import com.is_gr8.imageprocessor.convolution.Kernel;
-import com.is_gr8.imageprocessor.convolution.PixelBucket;
 import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
+import com.is_gr8.imageprocessor.convolution.PixelBucket;
+import com.is_gr8.imageprocessor.convolution.PrewittThread;
 
 /**
  * @author rocco
@@ -106,7 +106,52 @@ public class PgmProcessor {
 	 * @param vertical vertical kernel
 	 * @return image with changed body values. Pixel values are replaced with gradient magnitude values.
 	 */
+	public static PgmImage parallelPrewittEdgeDetection(final PgmImage img,
+			final int size) {
+		long start = System.currentTimeMillis();
+		
+		byte[][] pixels = img.getPixels();
+		byte[][] edges = new byte[pixels.length][pixels[0].length];
+
+		Kernel horizontal = Kernel.getPrewittFilter(size, Direction.HORIZONTAL);
+		Kernel vertical = Kernel.getPrewittFilter(size, Direction.VERTICAL);
+
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+		for (int row = 0; row < pixels.length; row++) {
+			Runnable worker = new PrewittThread(pixels, edges, row, horizontal,
+					vertical);
+			executor.execute(worker);
+		}
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+		long stop = System.currentTimeMillis();
+		long duration = stop -start;
+		logger.debug("Edge detection took: " + duration + "ms.");
+		img.setPixels(edges);
+		return img;
+	}
+	
+	/**
+	 * Runs the prewittEdgeDetection on the source image.
+	 * <pre>
+	 * A: source image
+	 * G: gradient magnitude
+	 * 
+	 * G_x: A convergenced with horizontal kernel
+	 * G_y: A convergenced with vertical kernel
+	 * 
+	 * G = sqrt(G_x^2 + G_y^2)
+	 * </pre>
+	 * 
+	 * @param img th eimage to be transformed
+	 * @param horizontal horizontal kernel
+	 * @param vertical vertical kernel
+	 * @return image with changed body values. Pixel values are replaced with gradient magnitude values.
+	 */
 	public static PgmImage prewittEdgeDetection(final PgmImage img, final int size){
+		long start = System.currentTimeMillis();
 		byte[][] pixels = img.getPixels();
 		byte[][] edges= new byte[pixels.length][pixels[0].length];
 		
@@ -134,6 +179,9 @@ public class PgmProcessor {
 				}	
 			}
 		}
+		long stop = System.currentTimeMillis();
+		long duration = stop -start;
+		logger.debug("Edge detection took: " + duration + "ms.");
 		img.setPixels(edges);
 		return img;
 	}
@@ -173,7 +221,7 @@ public class PgmProcessor {
 	 * @param intensity size of the bucket
 	 * @return the bucket with the surrounding pixels
 	 */
-	private static PixelBucket getBucket(final byte[][] pixels, final int row, final int col, final Kernel kernel) {
+	public static PixelBucket getBucket(final byte[][] pixels, final int row, final int col, final Kernel kernel) {
 		int intensity = kernel.getSize();
 		//distance from the central pixel
 		int distance = (intensity - 1) / 2;

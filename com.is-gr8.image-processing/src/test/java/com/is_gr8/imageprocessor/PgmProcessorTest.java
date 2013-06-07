@@ -125,6 +125,19 @@ public class PgmProcessorTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testParallelPrewittEdgeDetection() {
+		for(PgmImage pgm : testImages){
+			pgm = PgmProcessor.parallelPrewittEdgeDetection(pgm, 5);
+			try {
+				PgmProcessor.writeToDisk(pgm, destination + pgm.getFile().getName() + ".edgePrewitt2.pgm");
+			} catch (IOException e) {
+				e.printStackTrace();
+				fail("Save was not successful.");
+			}
+		}
+	}
 
 	/**
 	 * Test method for {@link com.is_gr8.imageprocessor.PgmProcessor#logEdgeDetection(com.is_gr8.imageprocessor.PgmImage, com.is_gr8.imageprocessor.convolution.Kernel)}.
