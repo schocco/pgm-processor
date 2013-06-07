@@ -120,11 +120,9 @@ public class PgmImage {
 				c = (char) stream.readByte();
 				if(c == '\n' || c == '\r'){
 					newlinecount++;
-					logger.debug("Encountered newline.");
 				}
 				if(c == (char) '#' && (previous == '\n' || previous == '\r')){
 					newlinecount--;
-					logger.debug("Encountered comment");
 				}
 				previous = c;
 			} while(newlinecount < 3);

@@ -137,6 +137,33 @@ public class PgmProcessor {
 	
 	/**
 	 * 
+	 * @param img
+	 * @param kernel
+	 * @return
+	 */
+	public static PgmImage logEdgeDetection(final PgmImage img, final Kernel kernel){
+		byte[][] pixels = img.getPixels();
+		byte[][] edges= new byte[pixels.length][pixels[0].length];
+		outerloop:
+		for(int row=0; row<pixels.length; row++){
+			for(int col=0; col<pixels[row].length; col++){
+				PixelBucket bucket = getBucket(pixels, row, col, kernel);
+				try{
+					edges[row][col] = (byte) Math.round(bucket.getEndValue());
+				} catch(ArithmeticException ex){
+					// could occur when the kernel wasnt initialized properly.
+					logger.error("Could not calculate new pixelvalue. Aborting.");
+					edges = pixels;
+					break outerloop;
+				}	
+			}
+		}
+		img.setPixels(edges);
+		return img;
+	}
+	
+	/**
+	 * 
 	 * @param pixels the array with the original image data
 	 * @param row row position (index, zero-based)
 	 * @param col column position (index, zero-based)
