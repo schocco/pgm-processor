@@ -343,17 +343,53 @@ public class PgmProcessor {
 	}
 	
 	
-	public static void houghTransform(){
+	/**
+	 * 
+	 * @param pixels
+	 * @param threshold
+	 */
+	public static void houghTransform(byte[][] pixels, int threshold) {
 		// TODO: implement simple hough transform
+		int r;
+		double theta;
+		int rows = pixels.length;
+		int cols = pixels[0].length;
+		int rMax = (int) (Math.sqrt(Math.pow(rows / 2, 2) + Math.pow(cols / 2, 2)));
+		int thetaMax = 360;
+		int[][] accumulator = new int[rMax][thetaMax];
+		for(int i = 0; i< rMax; i++){
+			for(int p = 0; p<thetaMax; p++){
+				accumulator[i][p] = 0;
+			}
+		}
 		
-		// r = x cos theta + y sin theta
-		
+
 		// for each pixel:
-		// get r for 0 < theta < 2 pi
-		// increment accumulator[r][theta]
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < cols; col++) {
+				// get r for 0 < theta < 2 pi (360°)
+				for(int t = 0; t<thetaMax; t++){
+					theta = Math.toRadians(t); //inexact transformation
+					// r = x cos theta + y sin theta
+					r = (int) Math.round(row * Math.cos(theta) + col * Math.sin(theta));
+					// increment accumulator[r][theta]
+					if(r > 0 && r < rMax){
+						accumulator[r][t] += 1; 
+					}
+				}
+			}
+		}
+
 		
-		// get all accumulator fields that ar ehigher than a threshold
-		// draw lines for these fields.
+		// get all accumulator fields that are higher than a threshold
+		for(int i = 0; i< rMax; i++){
+			for(int p = 0; p<thetaMax; p++){
+				if(accumulator[i][p] >= threshold){
+					logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
+				}
+			}
+		}
+		// TODO: draw lines for these fields.
 	}
 	
 	

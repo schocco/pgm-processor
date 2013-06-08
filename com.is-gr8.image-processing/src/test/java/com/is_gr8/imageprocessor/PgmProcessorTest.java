@@ -156,5 +156,13 @@ public class PgmProcessorTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testHoughTransform() throws Exception{
+		//use small images only.
+		for(int i = 0; i<2; i++){
+			PgmProcessor.houghTransform(testImages[i].getPixels(), 900);
+		}
+	}
 
 }
