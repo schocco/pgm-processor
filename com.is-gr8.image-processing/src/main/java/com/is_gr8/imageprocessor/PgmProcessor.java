@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -101,9 +102,8 @@ public class PgmProcessor {
 	 * G = sqrt(G_x^2 + G_y^2)
 	 * </pre>
 	 * 
-	 * @param img th eimage to be transformed
-	 * @param horizontal horizontal kernel
-	 * @param vertical vertical kernel
+	 * @param img 	the image to be transformed
+	 * @param size	size of the kernels to be used
 	 * @return image with changed body values. Pixel values are replaced with gradient magnitude values.
 	 */
 	public static PgmImage parallelPrewittEdgeDetection(final PgmImage img,
@@ -134,6 +134,7 @@ public class PgmProcessor {
 	}
 	
 	/**
+	 * @deprecated in favor of the multithreaded {@link #parallelPrewittEdgeDetection(PgmImage, int)}
 	 * Runs the prewittEdgeDetection on the source image.
 	 * <pre>
 	 * A: source image
@@ -145,9 +146,8 @@ public class PgmProcessor {
 	 * G = sqrt(G_x^2 + G_y^2)
 	 * </pre>
 	 * 
-	 * @param img th eimage to be transformed
-	 * @param horizontal horizontal kernel
-	 * @param vertical vertical kernel
+	 * @param img 	the image to be transformed
+	 * @param size	size of the kernels to be used
 	 * @return image with changed body values. Pixel values are replaced with gradient magnitude values.
 	 */
 	public static PgmImage prewittEdgeDetection(final PgmImage img, final int size){
@@ -188,28 +188,29 @@ public class PgmProcessor {
 	
 	/**
 	 * 
-	 * @param img
-	 * @param kernel
-	 * @return
+	 * @param img 		pgm image
+	 * @param kernel	kernel to be used
+	 * @return			pgm image
 	 */
 	public static PgmImage logEdgeDetection(final PgmImage img, final Kernel kernel){
 		byte[][] pixels = img.getPixels();
-		byte[][] edges= new byte[pixels.length][pixels[0].length];
+		int[][] edges= new int[pixels.length][pixels[0].length];
 		outerloop:
 		for(int row=0; row<pixels.length; row++){
 			for(int col=0; col<pixels[row].length; col++){
 				PixelBucket bucket = getBucket(pixels, row, col, kernel);
 				try{
-					edges[row][col] = (byte) Math.round(bucket.getEndValue());
+					edges[row][col] = (int) Math.round(bucket.getEndValue());
 				} catch(ArithmeticException ex){
 					// could occur when the kernel wasnt initialized properly.
 					logger.error("Could not calculate new pixelvalue. Aborting.");
-					edges = pixels;
+					//edges = pixels;
 					break outerloop;
 				}	
 			}
 		}
-		img.setPixels(edges);
+		byte[][] bytes = normalize(edges, 3);
+		img.setPixels(bytes);
 		return img;
 	}
 	
@@ -285,7 +286,64 @@ public class PgmProcessor {
 	}
 	
 	/**
-	 * Write image to disk
+	 * 
+	 * @param pixels 	2d matrix with img pixels
+	 * @param crop		percentage of pixels that should be ignored to eliminate outliers
+	 * @return			byte array with normalized values (0-255)
+	 */
+	public static byte[][] normalize(final int[][] pixels, final int crop){
+		int maxVal = 0;
+		int minVal = 255;
+		int[] flatPixels = new int[pixels.length * pixels[0].length];
+		byte[][] normalized = new byte[pixels.length][pixels[0].length];
+
+		if(crop < 0 || crop > 30){
+			throw new IllegalArgumentException("crop argument must be in between 0 and 30");
+		}
+		
+		//make 1d array
+		int i = 0;
+		for(int r = 0; r < pixels.length; r++){
+			for(int c = 0; c< pixels[0].length; c++){
+				flatPixels[i++] = pixels[r][c];
+				if(pixels[r][c] < minVal){
+					minVal = pixels[r][c];
+				}
+				if(pixels[r][c] > maxVal){
+					maxVal = pixels[r][c];
+				}
+			}
+		}
+		logger.debug("minVal (uncropped): " + minVal);
+		logger.debug("maxVal (uncropped): " + maxVal);
+		
+		if(crop > 0){
+			Arrays.sort(flatPixels);
+			// distance from border to get n %
+			int distance = (int) Math.round(flatPixels.length*(crop/100.0));
+			minVal = flatPixels[distance];
+			maxVal = flatPixels[flatPixels.length - distance];
+			
+			logger.debug("minVal: " + minVal);
+			logger.debug("maxVal: " + maxVal);
+		}
+		//normalize
+		for(int r = 0; r < pixels.length; r++){
+			for(int c = 0; c< pixels[0].length; c++){
+				double pixel = pixels[r][c];
+				if(pixel <= minVal){
+					normalized[r][c] = 0;
+				} else if(pixel >= maxVal){
+					normalized[r][c] = (byte) 255;
+				}
+				normalized[r][c] = (byte) ((pixel + Math.abs(minVal)) / (maxVal - minVal) * 255);
+			}
+		}
+		return normalized;
+	}
+	
+	/**
+	 * Write image to disk.
 	 * @param img pgm image
 	 * @throws IOException 
 	 */
