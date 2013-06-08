@@ -366,14 +366,18 @@ public class PgmProcessor {
 		// for each pixel:
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
-				// get r for 0 < theta < 2 pi (360°)
-				for(int t = 0; t<thetaMax; t++){
-					theta = Math.toRadians(t); //inexact transformation
-					// r = x cos theta + y sin theta
-					r = (int) Math.round(row * Math.cos(theta) + col * Math.sin(theta));
-					// increment accumulator[r][theta]
-					if(r > 0 && r < rMax){
-						accumulator[r][t] += 1; 
+				//ignore white pixels:
+				if(255 > (pixels[row][col] & 0xff)){
+					// get r for 0 < theta < 2 pi (360°)
+					for(int t = 0; t<thetaMax; t++){
+						theta = Math.toRadians(t); //inexact transformation
+						// r = x cos theta + y sin theta
+						r = (int) Math.round(row * Math.cos(theta) + col * Math.sin(theta));
+						// increment accumulator[r][theta]
+						if(r > 0 && r < rMax){
+							//use weight to differentiate between dark and light values
+							accumulator[r][t] += 100 / (1 + pixels[row][col] & 0xff); 
+						}
 					}
 				}
 			}
@@ -384,7 +388,7 @@ public class PgmProcessor {
 		for(int i = 0; i< rMax; i++){
 			for(int p = 0; p<thetaMax; p++){
 				if(accumulator[i][p] >= threshold){
-					logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
+					//logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
 				}
 			}
 		}
