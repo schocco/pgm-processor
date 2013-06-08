@@ -8,11 +8,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
+import com.is_gr8.imageprocessor.convolution.HoughThread;
 import com.is_gr8.imageprocessor.convolution.Kernel;
 import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
 import com.is_gr8.imageprocessor.convolution.PixelBucket;
@@ -341,10 +343,62 @@ public class PgmProcessor {
 		}
 		return normalized;
 	}
-	
-	
+
 	/**
 	 * 
+	 * @param pixels
+	 * @param threshold
+	 */
+	public static void parallelHoughTransform(byte[][] pixels, int threshold) {
+		int r;
+		int rows = pixels.length;
+		int cols = pixels[0].length;
+		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
+		int thetaMax = 360;
+		int[][] accumulator = new int[rMax+1][thetaMax+1];
+		for(int i = 0; i< rMax; i++){
+			for(int p = 0; p<thetaMax; p++){
+				accumulator[i][p] = 0;
+			}
+		}
+		
+		//only calculate weights once to avoid divisions in the inner loop
+		int[] weights = new int[255];
+		for(int i = 0; i < 255; i++){
+			weights[i] = 100 / (1+i);
+		}
+		
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		
+		// for each pixel:
+		for (int row = 0; row < rows; row++) {
+			HoughThread t = new HoughThread(row, accumulator, weights, pixels);
+			executor.execute(t);
+		}
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+
+		// get all accumulator fields that are higher than a threshold
+		for(int i = 0; i< rMax; i++){
+			for(int p = 0; p<thetaMax; p++){
+				if(accumulator[i][p] >= threshold){
+					//logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
+				}
+			}
+		}
+		//TODO: remove. image storage for testing purposes only.
+		PgmImage pgm = getAccumulatorImage(accumulator);
+		try {
+			writeToDisk(pgm, "accumulator.pgm");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * @deprecated in favor of {@link #parallelHoughTransform(byte[][], int)}
 	 * @param pixels
 	 * @param threshold
 	 */
@@ -362,6 +416,12 @@ public class PgmProcessor {
 			}
 		}
 		
+		//only calculate weights once to avoid divisions in the inner loop
+		int[] weights = new int[255];
+		for(int i = 0; i < 255; i++){
+			weights[i] = 100 / (1+i);
+		}
+		
 
 		// for each pixel:
 		for (int row = 0; row < rows; row++) {
@@ -372,18 +432,17 @@ public class PgmProcessor {
 					for(int t = 0; t<thetaMax; t++){
 						theta = Math.toRadians(t); //inexact transformation
 						// r = x cos theta + y sin theta
-						r = (int) Math.round(row * Math.cos(theta) + col * Math.sin(theta));
+						r = (int) (row * Math.cos(theta) + col * Math.sin(theta));
 						// increment accumulator[r][theta]
 						if(r > 0 && r < rMax){
 							//use weight to differentiate between dark and light values
-							accumulator[r][t] += 100 / (1 + pixels[row][col] & 0xff); 
+							accumulator[r][t] += weights[pixels[row][col] & 0xff]; 
 						}
 					}
 				}
 			}
 		}
 
-		
 		// get all accumulator fields that are higher than a threshold
 		for(int i = 0; i< rMax; i++){
 			for(int p = 0; p<thetaMax; p++){
@@ -408,7 +467,7 @@ public class PgmProcessor {
 	 * @return
 	 */
 	private static PgmImage getAccumulatorImage(int[][] acc){
-		byte[][] pixels = normalize(acc, 2);
+		byte[][] pixels = normalize(acc, 0);
 		PgmImage pgm = new PgmImage();
 		pgm.setPixels(pixels);
 		pgm.setHeight(pixels.length);
