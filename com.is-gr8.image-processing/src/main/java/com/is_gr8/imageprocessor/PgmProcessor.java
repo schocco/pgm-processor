@@ -342,6 +342,21 @@ public class PgmProcessor {
 		return normalized;
 	}
 	
+	
+	public static void houghTransform(){
+		// TODO: implement simple hough transform
+		
+		// r = x cos theta + y sin theta
+		
+		// for each pixel:
+		// get r for 0 < theta < 2 pi
+		// increment accumulator[r][theta]
+		
+		// get all accumulator fields that ar ehigher than a threshold
+		// draw lines for these fields.
+	}
+	
+	
 	/**
 	 * Write image to disk.
 	 * @param img pgm image
