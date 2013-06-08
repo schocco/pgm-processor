@@ -204,6 +204,38 @@ public class PgmImage {
 		return infomap;
 	}
 	
+	/**
+	 * @param magicNumber the magicNumber to set
+	 */
+	public final void setMagicNumber(String magicNumber) {
+		this.magicNumber = magicNumber;
+	}
+
+
+	/**
+	 * @param width the width to set
+	 */
+	public final void setWidth(int width) {
+		this.width = width;
+	}
+
+
+	/**
+	 * @param height the height to set
+	 */
+	public final void setHeight(int height) {
+		this.height = height;
+	}
+
+
+	/**
+	 * @param maxValue the maxValue to set
+	 */
+	public final void setMaxValue(int maxValue) {
+		this.maxValue = maxValue;
+	}
+
+
 	public void addListener(ImageEventListener listener){
 		listeners.add(listener);
 	}

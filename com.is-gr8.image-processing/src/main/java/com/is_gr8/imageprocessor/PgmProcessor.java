@@ -349,12 +349,11 @@ public class PgmProcessor {
 	 * @param threshold
 	 */
 	public static void houghTransform(byte[][] pixels, int threshold) {
-		// TODO: implement simple hough transform
 		int r;
 		double theta;
 		int rows = pixels.length;
 		int cols = pixels[0].length;
-		int rMax = (int) (Math.sqrt(Math.pow(rows / 2, 2) + Math.pow(cols / 2, 2)));
+		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
 		int thetaMax = 360;
 		int[][] accumulator = new int[rMax][thetaMax];
 		for(int i = 0; i< rMax; i++){
@@ -389,7 +388,30 @@ public class PgmProcessor {
 				}
 			}
 		}
-		// TODO: draw lines for these fields.
+		//TODO: remove. image storage for testing purposes only.
+		PgmImage pgm = getAccumulatorImage(accumulator);
+		try {
+			writeToDisk(pgm, "accumulator.pgm");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param acc
+	 * @return
+	 */
+	private static PgmImage getAccumulatorImage(int[][] acc){
+		byte[][] pixels = normalize(acc, 2);
+		PgmImage pgm = new PgmImage();
+		pgm.setPixels(pixels);
+		pgm.setHeight(pixels.length);
+		pgm.setWidth(pixels[0].length);
+		pgm.setMagicNumber("P5");
+		pgm.setMaxValue(255);
+		return pgm;
 	}
 	
 	
