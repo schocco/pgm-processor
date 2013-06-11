@@ -27,8 +27,10 @@ public class PgmProcessorTest {
 	private PgmImage fireSmall;
 	/** large image to be used for performance testing. */
 	private PgmImage fireLarge;
+	/** lines with slight distortion to test hough transform. */
+	private PgmImage lines;
 	/** list of test images. */
-	private PgmImage[] testImages = new PgmImage[4];
+	private PgmImage[] testImages = new PgmImage[5];
 	
 	private boolean setUpIsDone = false;
 
@@ -46,6 +48,7 @@ public class PgmProcessorTest {
 	    if(!f.exists()){
 	    	f.mkdir();
 	    }
+	    lines = new PgmImage(new File("src/test/resources/lines2.pgm"));
 		malbunSmall = new PgmImage(new File("src/test/resources/malbun.resized.pgm"));
 		malbunLarge = new PgmImage(new File("src/test/resources/malbun.pgm"));
 		fireSmall = new PgmImage(new File("src/test/resources/fire.resized.pgm"));
@@ -54,6 +57,7 @@ public class PgmProcessorTest {
 		testImages[1] = fireSmall;
 		testImages[2] = malbunLarge;
 		testImages[3] = fireLarge;
+		testImages[4] = lines;
 		setUpIsDone = true;
 	}
 	
@@ -158,19 +162,12 @@ public class PgmProcessorTest {
 	}
 	
 	@Test
-	public void testHoughTransform() throws Exception{
-		//use small images only.
-		for(int i = 0; i<2; i++){
-			PgmProcessor.houghTransform(testImages[i].getPixels(), 900);
-		}
-	}
-	
-	@Test
 	public void testParallelHoughTransform() throws Exception{
 		//use small images only.
 		for(int i = 0; i<2; i++){
-			PgmProcessor.parallelHoughTransform(testImages[i].getPixels(), 900);
+			PgmProcessor.houghTransform(testImages[i]);
 		}
+		PgmProcessor.houghTransform(testImages[4]);
 	}
 
 }

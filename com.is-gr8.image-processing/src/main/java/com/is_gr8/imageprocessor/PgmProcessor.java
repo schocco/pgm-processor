@@ -346,10 +346,40 @@ public class PgmProcessor {
 
 	/**
 	 * 
-	 * @param pixels
-	 * @param threshold
+	 * @param pgm
+	 * @return
 	 */
-	public static void parallelHoughTransform(byte[][] pixels, int threshold) {
+	public static PgmImage houghTransform(PgmImage pgm){
+
+		int[][] accumulator = houghTransformAccumulate(pgm.getPixels());
+		
+		PgmImage accumulatorPgm = getAccumulatorImage(accumulator);
+		
+		try {
+			writeToDisk(accumulatorPgm, pgm.getFile().getName() + "accu.pgm");
+		} catch (IOException e) {
+			logger.debug("could not save accumulator image.");
+			e.printStackTrace();
+		}
+		
+		int threshold = 100;
+		// get all accumulator fields that are higher than a threshold
+		for(int i = 0; i< accumulator.length; i++){
+			for(int p = 0; p < accumulator[i].length; p++){
+				if(accumulator[i][p] >= threshold){
+					//logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
+				}
+			}
+		}
+		return accumulatorPgm; //FIXME: should return something that can be used to draw lines in swt
+	}
+	
+	/**
+	 * 
+	 * @param pixels pixel 2d array of the image
+	 * @return accumulator array with results of the hough transform
+	 */
+	private static int[][] houghTransformAccumulate(byte[][] pixels) {
 		int r;
 		int rows = pixels.length;
 		int cols = pixels[0].length;
@@ -365,7 +395,7 @@ public class PgmProcessor {
 		//only calculate weights once to avoid divisions in the inner loop
 		int[] weights = new int[255];
 		for(int i = 0; i < 255; i++){
-			weights[i] = 100 / (1+i);
+			weights[i] = 2550 / (10 * (1+i));
 		}
 		
 		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -379,86 +409,7 @@ public class PgmProcessor {
 		while (!executor.isTerminated()) {
 		}
 
-		// get all accumulator fields that are higher than a threshold
-		for(int i = 0; i< rMax; i++){
-			for(int p = 0; p<thetaMax; p++){
-				if(accumulator[i][p] >= threshold){
-					//logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
-				}
-			}
-		}
-		//TODO: remove. image storage for testing purposes only.
-		PgmImage pgm = getAccumulatorImage(accumulator);
-		try {
-			writeToDisk(pgm, "accumulator.pgm");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * @deprecated in favor of {@link #parallelHoughTransform(byte[][], int)}
-	 * @param pixels
-	 * @param threshold
-	 */
-	public static void houghTransform(byte[][] pixels, int threshold) {
-		int r;
-		double theta;
-		int rows = pixels.length;
-		int cols = pixels[0].length;
-		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
-		int thetaMax = 360;
-		int[][] accumulator = new int[rMax][thetaMax];
-		for(int i = 0; i< rMax; i++){
-			for(int p = 0; p<thetaMax; p++){
-				accumulator[i][p] = 0;
-			}
-		}
-		
-		//only calculate weights once to avoid divisions in the inner loop
-		int[] weights = new int[255];
-		for(int i = 0; i < 255; i++){
-			weights[i] = 100 / (1+i);
-		}
-		
-
-		// for each pixel:
-		for (int row = 0; row < rows; row++) {
-			for (int col = 0; col < cols; col++) {
-				//ignore white pixels:
-				if(255 > (pixels[row][col] & 0xff)){
-					// get r for 0 < theta < 2 pi (360°)
-					for(int t = 0; t<thetaMax; t++){
-						theta = Math.toRadians(t); //inexact transformation
-						// r = x cos theta + y sin theta
-						r = (int) (row * Math.cos(theta) + col * Math.sin(theta));
-						// increment accumulator[r][theta]
-						if(r > 0 && r < rMax){
-							//use weight to differentiate between dark and light values
-							accumulator[r][t] += weights[pixels[row][col] & 0xff]; 
-						}
-					}
-				}
-			}
-		}
-
-		// get all accumulator fields that are higher than a threshold
-		for(int i = 0; i< rMax; i++){
-			for(int p = 0; p<thetaMax; p++){
-				if(accumulator[i][p] >= threshold){
-					//logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
-				}
-			}
-		}
-		//TODO: remove. image storage for testing purposes only.
-		PgmImage pgm = getAccumulatorImage(accumulator);
-		try {
-			writeToDisk(pgm, "accumulator.pgm");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		return accumulator;
 	}
 	
 	/**
