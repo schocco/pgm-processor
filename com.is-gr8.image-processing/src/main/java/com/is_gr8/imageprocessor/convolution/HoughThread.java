@@ -33,7 +33,7 @@ public class HoughThread implements Runnable {
 	public HoughThread(int row, int[][] accumulator, int[] weights, byte[][] pixels) {
 		this.row = row;
 		this.rMax = accumulator.length;
-		this.thetaMax = accumulator[0].length;
+		this.thetaMax = 360;
 		this.accumulator = accumulator;
 		this.weights = weights;
 		this.pixels = pixels;
