@@ -42,7 +42,11 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		imgLabel = new Label(this, SWT.NONE);
 	}
 	
-	public void drawImage(PgmImage pgm){
+	/**
+	 * draws the pgm image in the composite after transforming it to an SWT image.
+	 * @param pgm image
+	 */
+	public final void drawImage(PgmImage pgm){
 		//create image data from pgm object
 		int depth = 8; //TODO: this should be stored in the pgm object
 		PaletteData palette = new PaletteData(255, 255, 255);
@@ -51,15 +55,30 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		//copy bytes into swt image data obj
 		byte[][] px = pgm.getPixels();		
 		int bytecounter = 0;
-		for(int y = 0; y < px.length; y++){
-			for(int x = 0; x < px[y].length; x++){
-				//idata.setPixel(x, y, px[y][x]);
-				idata.data[bytecounter++] = px[y][x];
+		for(int row = 0; row < pgm.getHeight(); row++){
+			for(int col = 0; col < pgm.getWidth(); col++){
+				idata.data[bytecounter++] = px[row][col];
 			}
 		}
 		
 		//create and display image
 		Image img = new Image(display, idata);
+		//FIXME: only works for landscape oriented images for some reason.
+		logger.debug(bytecounter + " vs " + img.getImageData().data.length);
+		logger.debug("bytes per line: " + img.getImageData().bytesPerLine + " width: " + pgm.getWidth());
+		
+		for (int y = 0, j = 3; y < 50; y++) {
+			for (int x = 0; x < pgm.getWidth(); x++) {
+				int orig = (int) px[y][x] & 0xff;
+				int nev = (int) (img.getImageData().data[j]) & 0xff;
+				if (x % 20 == 0 && nev != orig) {
+					logger.debug(orig + " vs " + nev);
+				}
+
+				j += 4;
+			}
+		}
+		
 		imgLabel.setImage(img);
 		this.layout();
 	}

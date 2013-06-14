@@ -29,7 +29,6 @@ public class HoughTransResult {
 	 * 
 	 */
 	public HoughTransResult() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public HoughTransResult(PgmImage img) {
