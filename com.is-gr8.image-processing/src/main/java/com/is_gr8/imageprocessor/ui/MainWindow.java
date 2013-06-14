@@ -42,7 +42,7 @@ public class MainWindow{
 	/** logger. */
 	private Logger logger = Logger.getLogger(MainWindow.class);
 	/** shell width. */
-	private static final int XSIZE = 400;
+	private static final int XSIZE = 600;
 	/** shell length. */
 	private static final int YSIZE = 500;
 	/** the shell. */
@@ -83,6 +83,7 @@ public class MainWindow{
 					smoothMenuItem.setEnabled(true);
 					edgeMenuItem.setEnabled(true);
 					invertMenuItem.setEnabled(true);
+					houghMenuItem.setEnabled(true);
 					
 					// update scroller size info for proper scroll bars
 					Rectangle r = imginfoScroller.getClientArea();
@@ -156,6 +157,8 @@ public class MainWindow{
 	private MenuItem functionsMenu;
 	/** invert function in the menu. */
 	private MenuItem invertMenuItem;
+	/** hough transform function in the menu. */
+	private MenuItem houghMenuItem;
 	/** smooth function in the menu. */
 	private MenuItem smoothMenuItem;
 	/** edge detection function in the menu. */
@@ -176,12 +179,13 @@ public class MainWindow{
 		this.init();
 		this.center();
 		shell.open();
-
+		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
 		}
+		
 	}
 
 	/** initializes the UI. */
@@ -241,6 +245,17 @@ public class MainWindow{
 		invertMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				currentImage = PgmProcessor.invert(currentImage, false);
+			};
+		});
+		
+		houghMenuItem = new MenuItem(dropdown2, SWT.PUSH);
+		houghMenuItem.setText("hough transform");
+		houghMenuItem.setEnabled(false);
+		houghMenuItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				PgmProcessor.houghTransform(currentImage);
+				HoughLineDialog h = new HoughLineDialog(shell, SWT.NONE);
+				boolean saveResult = h.open();
 			};
 		});
 		

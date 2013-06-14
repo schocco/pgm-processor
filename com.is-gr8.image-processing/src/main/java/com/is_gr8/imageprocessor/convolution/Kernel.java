@@ -121,7 +121,7 @@ public class Kernel {
 		double[] row = new double[size];
 		Kernel kernel = new Kernel(size);
 		StringBuilder sb = new StringBuilder();
-		int startvalue = -size/2;
+		int startvalue = -size/2; //FIXME: no weights for prewitt kernel, either -1 or 1
 		
 		switch (direction) {
 		case HORIZONTAL:
