@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.TabItem;
 import com.is_gr8.imageprocessor.Main;
 import com.is_gr8.imageprocessor.PgmImage;
 import com.is_gr8.imageprocessor.PgmProcessor;
+import com.is_gr8.imageprocessor.convolution.HoughTransResult;
 import com.is_gr8.imageprocessor.convolution.Kernel;
-import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
 import com.is_gr8.imageprocessor.ui.EdgeOptionsDialog.KernelType;
 
 /**
@@ -253,9 +253,20 @@ public class MainWindow{
 		houghMenuItem.setEnabled(false);
 		houghMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				PgmProcessor.houghTransform(currentImage);
+				HoughTransResult result = PgmProcessor.houghTransform(currentImage);
 				HoughLineDialog h = new HoughLineDialog(shell, SWT.NONE);
+				h.setResult(result);
 				boolean saveResult = h.open();
+				if(saveResult){
+					String path = ""; //TODO: open file chooser dialog to get path
+					try {
+						PgmProcessor.writeToDisk(result.getAccumulatorImage(), path);
+						//TODO: save drawed lines instead of accumulator image.
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			};
 		});
 		

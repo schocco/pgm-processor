@@ -380,10 +380,9 @@ public class PgmProcessor {
 		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
 		int thetaMax = 180;
 		int[][] accumulator = new int[rMax+1][thetaMax+1];
+		
 		for(int i = 0; i< rMax; i++){
-			for(int p = 0; p<thetaMax; p++){
-				accumulator[i][p] = 0;
-			}
+			Arrays.fill(accumulator[i], 0);
 		}
 		
 		//only calculate weights once to avoid divisions in the inner loop

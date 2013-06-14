@@ -5,8 +5,6 @@ package com.is_gr8.imageprocessor.convolution;
 
 import org.apache.log4j.Logger;
 
-import com.is_gr8.imageprocessor.PgmProcessor;
-
 /**
  * @author rocco
  *
@@ -33,7 +31,7 @@ public class HoughThread implements Runnable {
 	public HoughThread(int row, int[][] accumulator, int[] weights, byte[][] pixels) {
 		this.row = row;
 		this.rMax = accumulator.length;
-		this.thetaMax = 360;
+		this.thetaMax = 180;
 		this.accumulator = accumulator;
 		this.weights = weights;
 		this.pixels = pixels;
