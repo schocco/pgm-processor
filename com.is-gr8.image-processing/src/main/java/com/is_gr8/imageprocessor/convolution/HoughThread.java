@@ -56,6 +56,7 @@ public class HoughThread implements Runnable {
 					// increment accumulator[r][theta]
 					if(r > 0 && r < rMax){
 						//use weight to differentiate between dark and light values
+						//FIXME: potential concurrent write issue
 						accumulator[r][t] += weights[pixels[row][col] & 0xff]; 
 					}
 				}

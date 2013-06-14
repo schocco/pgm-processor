@@ -8,13 +8,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
 import com.is_gr8.imageprocessor.convolution.HoughThread;
+import com.is_gr8.imageprocessor.convolution.HoughTransResult;
 import com.is_gr8.imageprocessor.convolution.Kernel;
 import com.is_gr8.imageprocessor.convolution.Kernel.Direction;
 import com.is_gr8.imageprocessor.convolution.PixelBucket;
@@ -349,29 +349,24 @@ public class PgmProcessor {
 	 * @param pgm
 	 * @return
 	 */
-	public static PgmImage houghTransform(PgmImage pgm){
+	public static HoughTransResult houghTransform(PgmImage pgm){
 
 		int[][] accumulator = houghTransformAccumulate(pgm.getPixels());
-		
 		PgmImage accumulatorPgm = getAccumulatorImage(accumulator);
 		
+		HoughTransResult result = new HoughTransResult(pgm);
+		result.setAccumulatorImage(accumulatorPgm);
+		result.setAccumulator(accumulator);
+		
+		//TODO: remove write operation
 		try {
 			writeToDisk(accumulatorPgm, pgm.getFile().getName() + "accu.pgm");
 		} catch (IOException e) {
 			logger.debug("could not save accumulator image.");
 			e.printStackTrace();
 		}
-		
-		int threshold = 100;
-		// get all accumulator fields that are higher than a threshold
-		for(int i = 0; i< accumulator.length; i++){
-			for(int p = 0; p < accumulator[i].length; p++){
-				if(accumulator[i][p] >= threshold){
-					//logger.debug(String.format("Exceeded threshold at (%d,%d): %d", i, p, accumulator[i][p]));
-				}
-			}
-		}
-		return accumulatorPgm; //FIXME: should return something that can be used to draw lines in swt
+
+		return result;
 	}
 	
 	/**
@@ -380,11 +375,10 @@ public class PgmProcessor {
 	 * @return accumulator array with results of the hough transform
 	 */
 	private static int[][] houghTransformAccumulate(byte[][] pixels) {
-		int r;
 		int rows = pixels.length;
 		int cols = pixels[0].length;
 		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
-		int thetaMax = 360;
+		int thetaMax = 180;
 		int[][] accumulator = new int[rMax+1][thetaMax+1];
 		for(int i = 0; i< rMax; i++){
 			for(int p = 0; p<thetaMax; p++){
