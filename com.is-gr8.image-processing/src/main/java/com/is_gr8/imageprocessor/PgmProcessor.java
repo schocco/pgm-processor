@@ -27,6 +27,8 @@ import com.is_gr8.imageprocessor.convolution.PrewittThread;
 public class PgmProcessor {
 
 	private static Logger logger = Logger.getLogger(PgmProcessor.class);
+	/** max theta. used as coordinate in the polar-coordinate system. */
+	public static final int THETA_MAX = 180;
 	/**
 	 * 
 	 */
@@ -378,10 +380,9 @@ public class PgmProcessor {
 		int rows = pixels.length;
 		int cols = pixels[0].length;
 		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
-		int thetaMax = 180;
-		int[][] accumulator = new int[rMax+1][thetaMax+1];
+		int[][] accumulator = new int[THETA_MAX+1][rMax+1];
 		
-		for(int i = 0; i< rMax; i++){
+		for(int i = 0; i< accumulator.length; i++){
 			Arrays.fill(accumulator[i], 0);
 		}
 		

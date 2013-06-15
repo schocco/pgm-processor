@@ -53,16 +53,26 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		idata = new ImageData(pgm.getWidth(), pgm.getHeight(), depth, palette);
 		
 		//read image data from source file if present
-		idata = new ImageData(pgm.getFile().getAbsolutePath());
+		//idata = new ImageData(pgm.getFile().getAbsolutePath());
 		
-		//otherwise copy bytes into swt image data obj
-		byte[][] px = pgm.getPixels();		
+		byte[][] px = pgm.getPixels();
+		byte[] imagedata = new byte[pgm.getWidth() * pgm.getHeight() * 32/depth];
+		
 		int bytecounter = 0;
 		for(int row = 0; row < pgm.getHeight(); row++){
 			for(int col = 0; col < pgm.getWidth(); col++){
 				idata.data[bytecounter++] = px[row][col];
 			}
 		}
+		
+		bytecounter = 0;
+		for(int row = 0; row < pgm.getHeight(); row++){
+			for(int col = 0; col < pgm.getWidth(); col++){
+				imagedata[bytecounter++] = px[row][col];
+			}
+		}
+		
+		idata = new ImageData(pgm.getWidth(), pgm.getHeight(), depth, palette, 1, imagedata);
 		
 		//create and display image
 		Image img = new Image(display, idata);
@@ -71,18 +81,18 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		logger.debug(bytecounter + " vs " + img.getImageData().data.length);
 		logger.debug("bytes per line: " + img.getImageData().bytesPerLine + " width: " + pgm.getWidth());
 		
-		for (int y = 0, j = 3, n = 0; y < 50; y++) {
-			for (int x = 0; x < pgm.getWidth(); x++) {
-				byte orig = px[y][x];
-				byte nev = (img.getImageData().data[j]);
-				byte seq = img.getImageData().data[n++];
-				if (x % 20 == 0 && nev != orig) {
-					logger.debug(orig + " vs " + nev + " vs " + seq);
-				}
-
-				j += 4;
-			}
-		}
+//		for (int y = 0, j = 3, n = 0; y < 50; y++) {
+//			for (int x = 0; x < pgm.getWidth(); x++) {
+//				byte orig = px[y][x];
+//				byte nev = (img.getImageData().data[j]);
+//				byte seq = img.getImageData().data[n++];
+//				if (x % 20 == 0 && nev != orig) {
+//					logger.debug(orig + " vs " + nev + " vs " + seq);
+//				}
+//
+//				j += 4;
+//			}
+//		}
 		
 		imgLabel.setImage(img);
 		this.layout();

@@ -5,6 +5,8 @@ package com.is_gr8.imageprocessor.convolution;
 
 import org.apache.log4j.Logger;
 
+import com.is_gr8.imageprocessor.PgmProcessor;
+
 /**
  * @author rocco
  *
@@ -13,7 +15,6 @@ public class HoughThread implements Runnable {
 	private Logger logger = Logger.getLogger(HoughThread.class);
 	private int row;
 	private int cols;
-	private int thetaMax;
 	private int[][] accumulator;
 	private int[] weights;
 	private double theta;
@@ -31,7 +32,6 @@ public class HoughThread implements Runnable {
 	public HoughThread(int row, int[][] accumulator, int[] weights, byte[][] pixels) {
 		this.row = row;
 		this.rMax = accumulator.length;
-		this.thetaMax = 180;
 		this.accumulator = accumulator;
 		this.weights = weights;
 		this.pixels = pixels;
@@ -47,7 +47,7 @@ public class HoughThread implements Runnable {
 			//ignore white pixels:
 			if(255 > (pixels[row][col] & 0xff)){
 				// get r for 0 < theta < 2 pi (360°)
-				for(int t = 0; t<thetaMax; t++){
+				for(int t = 0; t<PgmProcessor.THETA_MAX; t++){
 					theta = Math.toRadians(t); //inexact transformation
 					// r = x cos theta + y sin theta
 					r = (int) (row * Math.cos(theta) + col * Math.sin(theta));
