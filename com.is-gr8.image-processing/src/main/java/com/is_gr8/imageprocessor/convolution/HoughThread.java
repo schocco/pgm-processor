@@ -22,8 +22,7 @@ public class HoughThread implements Runnable {
 	private int r;
 	private int rMax;
 	private static final int THETA_STEP = 2;
-	private static final int R_STEP = 2;
-	private static final int COLOR_THRESHOLD = 20;
+	private static final int COLOR_THRESHOLD = 10;
 	
 	/**
 	 * 

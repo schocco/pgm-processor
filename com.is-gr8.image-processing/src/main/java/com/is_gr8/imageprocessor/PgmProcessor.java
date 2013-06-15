@@ -26,6 +26,10 @@ import com.is_gr8.imageprocessor.convolution.PrewittThread;
  */
 public class PgmProcessor {
 
+	/**
+	 * percentage of outliers to be ignored when normalizing the result of the LoG operation.
+	 */
+	private static final int LOG_EDGE_PERCENTILE = 10;
 	private static Logger logger = Logger.getLogger(PgmProcessor.class);
 	/** max theta. used as coordinate in the polar-coordinate system. */
 	public static final int THETA_MAX = 180;
@@ -33,7 +37,6 @@ public class PgmProcessor {
 	 * 
 	 */
 	public PgmProcessor() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	/**
@@ -213,7 +216,7 @@ public class PgmProcessor {
 				}	
 			}
 		}
-		byte[][] bytes = normalize(edges, 10);
+		byte[][] bytes = normalize(edges, LOG_EDGE_PERCENTILE);
 		img.setPixels(bytes);
 		return img;
 	}
@@ -360,9 +363,9 @@ public class PgmProcessor {
 		result.setAccumulatorImage(accumulatorPgm);
 		result.setAccumulator(accumulator);
 		
-		//TODO: remove write operation
+		//TODO: remove write operation, added for debugging purposes
 		try {
-			writeToDisk(accumulatorPgm, pgm.getFile().getName() + "accu.pgm");
+			writeToDisk(accumulatorPgm, pgm.getFile().getName() + ".accu.pgm");
 		} catch (IOException e) {
 			logger.debug("could not save accumulator image.");
 			e.printStackTrace();
@@ -389,10 +392,11 @@ public class PgmProcessor {
 		//only calculate weights once to avoid divisions in the inner loop
 		int[] weights = new int[255];
 		for(int i = 0; i < 255; i++){
-			weights[i] = 2550 / (10 * (1+i));
+			weights[i] = 255 / (1+i);
 		}
 		
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		//ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ExecutorService executor = Executors.newFixedThreadPool(1);
 		
 		// for each pixel:
 		for (int row = 0; row < rows; row++) {

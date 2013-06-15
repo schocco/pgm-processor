@@ -116,7 +116,7 @@ public class HoughLineDialog extends Dialog {
 			public void paintControl(PaintEvent e) {
 				int width = result.getOriginalImage().getWidth();
 				int height = result.getOriginalImage().getHeight();
-				HashMap<Point, Integer> maxima = result.getMaxima(8);
+				HashMap<Point, Integer> maxima = result.getMaxima(20);
 
 		        Image image = new Image(shell.getDisplay(), width, height);
 		        GC gc = new GC(image);
@@ -178,16 +178,18 @@ public class HoughLineDialog extends Dialog {
 		// y = r csc(theta)
 		p1.x = 0;
 		p1.y = (int) (r * 1 /Math.sin(theta));
-		logger.debug(String.format("P1(%d|%d)", p1.x, p1.y));
+		
 		if(isValidPoint(p1)){
+			logger.debug(String.format("P1(%d|%d)", p1.x, p1.y));
 			validPoints[indexCtr++] = p1;
 		}
 		
 		//try y = 0 -> x = r sec(theta)
 		p2.x = (int) (r * 1 / Math.cos(theta));
 		p2.y = 0;
-		logger.debug(String.format("P2(%d|%d)", p2.x, p2.y));
+		
 		if(isValidPoint(p2)){
+			logger.debug(String.format("P2(%d|%d)", p2.x, p2.y));
 			validPoints[indexCtr++] = p2;
 		}
 		
@@ -199,8 +201,9 @@ public class HoughLineDialog extends Dialog {
 		// y = csc(theta) (r-image.width cos(theta))
 		p3.x = width;
 		p3.y = (int) (1 /Math.sin(theta) * (r - width * Math.cos(theta)));
-		logger.debug(String.format("P3(%d|%d)", p3.x, p3.y));
+		
 		if(isValidPoint(p3)){
+			logger.debug(String.format("P3(%d|%d)", p3.x, p3.y));
 			validPoints[indexCtr++] = p3;
 		}
 		
@@ -210,10 +213,13 @@ public class HoughLineDialog extends Dialog {
 		
 		//try y = image.height
 		//x = sec(theta) (r-100 sin(theta))
+		
 		p4.x = (int) (1 / Math.cos(theta) * (r - height * Math.sin(theta)));
 		p4.y = height;
-		logger.debug(String.format("P4(%d|%d)", p4.x, p4.y));
+		
+		
 		if(isValidPoint(p4)){
+			logger.debug(String.format("P4(%d|%d)", p4.x, p4.y));
 			validPoints[indexCtr++] = p4;
 		}
 	
