@@ -395,8 +395,7 @@ public class PgmProcessor {
 			weights[i] = 255 / (1+i);
 		}
 		
-		//ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-		ExecutorService executor = Executors.newFixedThreadPool(1);
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		
 		// for each pixel:
 		for (int row = 0; row < rows; row++) {

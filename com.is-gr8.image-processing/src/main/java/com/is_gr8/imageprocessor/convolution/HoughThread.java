@@ -49,10 +49,10 @@ public class HoughThread implements Runnable {
 			//ignore white pixels:
 			if(255 - COLOR_THRESHOLD > (pixels[row][col] & 0xff)){
 				// get r for 0 < theta < 2 pi (360°)
-				for(int t = 0; t<PgmProcessor.THETA_MAX; t += THETA_STEP){
-					theta = Math.toRadians(t); //inexact transformation
+				for(int t = 0; t < PgmProcessor.THETA_MAX; t += THETA_STEP){
+					theta = (double) t * Math.PI / 180; //TODO: could be cached for better performance
 					// r = x cos theta + y sin theta
-					r = (int) (row * Math.cos(theta) + col * Math.sin(theta));
+					r = (int) Math.round((row * Math.cos(theta) + col * Math.sin(theta)));
 
 					if(r > 0 && r < rMax){
 						//use weight to differentiate between dark and light values

@@ -121,15 +121,22 @@ public class Kernel {
 		double[] row = new double[size];
 		Kernel kernel = new Kernel(size);
 		StringBuilder sb = new StringBuilder();
-		int startvalue = -size/2; //FIXME: no weights for prewitt kernel, either -1 or 1
+		int value = 0; //FIXME: no weights for prewitt kernel, either -1 or 1
 		
 		switch (direction) {
 		case HORIZONTAL:
 			logger.debug("Creating horizontal prewitt filter...");
 			//create row that can be used multiple times
 			for(int i = 0; i < size; i++){
-				sb.append(startvalue + "\t");
-				row[i] = startvalue++;				
+				if(i < size/2){
+					value = -1;
+				} else if(i == size/2){
+					value = 0;
+				} else {
+					value = 1;
+				}
+				sb.append(value + "\t");
+				row[i] = value++;				
 			}
 			for(int i = 0; i < size; i++){
 				kernel.weights[i] = row;
@@ -138,12 +145,18 @@ public class Kernel {
 			break;
 		case VERTICAL:
 			logger.debug("Creating vertical prewitt filter...");
-			for(int n = size-1; n >= 0; n--){
-				for(int i = 0; i < size; i++){
-					sb.append(startvalue + "\t");
-					kernel.weights[i][n] = startvalue;					
+			for(int n = 0; n < size; n++){
+				if(n < size/2){
+					value = -1;
+				} else if(n == size/2){
+					value = 0;
+				} else {
+					value = 1;
 				}
-				startvalue++;
+				for(int i = 0; i < size; i++){
+					sb.append(value + "\t");
+					kernel.weights[i][n] = value;					
+				}
 				logger.debug(sb.toString());
 				sb = new StringBuilder();
 			}
