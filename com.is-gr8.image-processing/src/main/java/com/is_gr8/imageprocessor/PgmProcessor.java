@@ -213,7 +213,7 @@ public class PgmProcessor {
 				}	
 			}
 		}
-		byte[][] bytes = normalize(edges, 3);
+		byte[][] bytes = normalize(edges, 10);
 		img.setPixels(bytes);
 		return img;
 	}
@@ -380,7 +380,7 @@ public class PgmProcessor {
 		int rows = pixels.length;
 		int cols = pixels[0].length;
 		int rMax = (int) (Math.sqrt(Math.pow(rows, 2) + Math.pow(cols, 2)));
-		int[][] accumulator = new int[THETA_MAX+1][rMax+1];
+		int[][] accumulator = new int[rMax+1][THETA_MAX+1];
 		
 		for(int i = 0; i< accumulator.length; i++){
 			Arrays.fill(accumulator[i], 0);

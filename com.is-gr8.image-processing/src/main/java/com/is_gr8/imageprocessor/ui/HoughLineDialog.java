@@ -57,7 +57,7 @@ public class HoughLineDialog extends Dialog {
 	  	shell.setText("Blur Options");
 	  	shell.setLayout(new FillLayout());
 		init();
-	    shell.setSize(result.getOriginalImage().getWidth(), result.getOriginalImage().getHeight());
+	    shell.setSize(result.getOriginalImage().getHeight(), result.getOriginalImage().getWidth());
 	    shell.pack();
 	    shell.open();
 	    

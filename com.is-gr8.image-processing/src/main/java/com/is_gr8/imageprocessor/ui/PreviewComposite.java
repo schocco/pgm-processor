@@ -51,7 +51,7 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		int depth = 8; //TODO: this should be stored in the pgm object
 		PaletteData palette = new PaletteData(255, 255, 255);
 		byte[][] px = pgm.getPixels();
-		byte[] imagedata = new byte[pgm.getWidth() * pgm.getHeight() * 32/depth];
+		byte[] imagedata = new byte[pgm.getWidth() * pgm.getHeight()];
 		
 		int bytecounter = 0;
 		for(int row = 0; row < pgm.getHeight(); row++){
