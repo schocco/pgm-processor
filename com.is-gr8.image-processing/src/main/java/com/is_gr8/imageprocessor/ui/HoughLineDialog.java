@@ -39,10 +39,6 @@ public class HoughLineDialog extends Dialog {
 	private Shell shell;
 	private HoughTransResult result;
 
-	// TODO: add constructor with results of hough transform
-	// display accumulator in one tab and lines in second tab
-	// add buttons to save or discard results
-
 	/**
 	 * @param arg0
 	 */
@@ -118,17 +114,12 @@ public class HoughLineDialog extends Dialog {
 		// Add a handler to do the drawing
 		canvas.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent e) {
-				// Get the canvas and its size
-				Canvas canvas = (Canvas) e.widget;
-
 				int width = result.getOriginalImage().getWidth();
 				int height = result.getOriginalImage().getHeight();
 				HashMap<Point, Integer> maxima = result.getMaxima(8);
 
 		        Image image = new Image(shell.getDisplay(), width, height);
 		        GC gc = new GC(image);
-		        //TODO: get coordinate for line drawing and draw lines
-		       // r = x cos theta + y sin theta
 		        
 				for(Point p : maxima.keySet()){
 					Point[] ps = getLinePoints(p);
@@ -207,7 +198,7 @@ public class HoughLineDialog extends Dialog {
 		//try x = image.width
 		// y = csc(theta) (r-image.width cos(theta))
 		p3.x = width;
-		p3.y = (int) (1 /Math.sin(theta) * (r-width * Math.cos(theta)));
+		p3.y = (int) (1 /Math.sin(theta) * (r - width * Math.cos(theta)));
 		logger.debug(String.format("P3(%d|%d)", p3.x, p3.y));
 		if(isValidPoint(p3)){
 			validPoints[indexCtr++] = p3;
@@ -230,9 +221,10 @@ public class HoughLineDialog extends Dialog {
 	}
 	
 	private boolean isValidPoint(Point p){
+		final int tolerance = 10;
 		int width = result.getOriginalImage().getWidth();
 		int height = result.getOriginalImage().getHeight();
-		return p.x >= 0 && p.x <= width && p.y >= 0 && p.y <= height;
+		return p.x >= 0 && p.x <= width + tolerance && p.y >= 0 && p.y <= height + tolerance;
 	}
 
 }

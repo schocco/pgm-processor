@@ -115,10 +115,7 @@ public class HoughTransResult {
 		
 		while(it.hasNext()){
 			Point p = it.next();
-			if(map.get(p) > high[0]){
-				logger.debug("Coordinates: " + p.x + " " + p.y + "\tval: " + map.get(p));
-				logger.debug("points:");
-			} else{
+			if(map.get(p) <= high[0]){
 				it.remove();
 			}
 		}
