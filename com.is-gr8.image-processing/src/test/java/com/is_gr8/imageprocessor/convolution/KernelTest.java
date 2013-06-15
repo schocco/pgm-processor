@@ -33,8 +33,6 @@ public class KernelTest {
 	public void testLoG() {
 		assertFalse(null == Kernel.getLaplaceOfGaussianKernel(3).getWeights());
 		assertFalse(null == Kernel.getLaplaceOfGaussianKernel(5).getWeights());
-		assertFalse(null == Kernel.getLaplaceOfGaussianKernel(7).getWeights());
-		assertFalse(null == Kernel.getLaplaceOfGaussianKernel(9).getWeights());
 	}
 	
 
