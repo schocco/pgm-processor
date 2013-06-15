@@ -21,6 +21,9 @@ public class HoughThread implements Runnable {
 	private byte[][] pixels;
 	private int r;
 	private int rMax;
+	private static final int THETA_STEP = 2;
+	private static final int R_STEP = 2;
+	private static final int COLOR_THRESHOLD = 20;
 	
 	/**
 	 * 
@@ -45,13 +48,13 @@ public class HoughThread implements Runnable {
 	public void run() {
 		for (int col = 0; col < cols; col++) {
 			//ignore white pixels:
-			if(255 > (pixels[row][col] & 0xff)){
+			if(255 - COLOR_THRESHOLD > (pixels[row][col] & 0xff)){
 				// get r for 0 < theta < 2 pi (360°)
-				for(int t = 0; t<PgmProcessor.THETA_MAX; t++){
+				for(int t = 0; t<PgmProcessor.THETA_MAX; t += THETA_STEP){
 					theta = Math.toRadians(t); //inexact transformation
 					// r = x cos theta + y sin theta
 					r = (int) (row * Math.cos(theta) + col * Math.sin(theta));
-					// increment accumulator[r][theta]
+
 					if(r > 0 && r < rMax){
 						//use weight to differentiate between dark and light values
 						//FIXME: potential concurrent write issue

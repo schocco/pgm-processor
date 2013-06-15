@@ -1,5 +1,8 @@
 package com.is_gr8.imageprocessor.ui;
 
+import java.util.HashMap;
+
+import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -7,6 +10,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
@@ -25,7 +29,7 @@ import com.is_gr8.imageprocessor.convolution.HoughTransResult;
  * 
  */
 public class HoughLineDialog extends Dialog {
-
+	private Logger logger = Logger.getLogger(HoughLineDialog.class);
 	/** tabfolder containing the lines and the accumulator image. **/
 	private TabFolder tabFolder;
 	/** preview composite for the lines. */
@@ -44,7 +48,6 @@ public class HoughLineDialog extends Dialog {
 	 */
 	public HoughLineDialog(Shell arg0) {
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -53,9 +56,12 @@ public class HoughLineDialog extends Dialog {
 	 */
 	public HoughLineDialog(Shell arg0, int arg1) {
 		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Displays the dialog with the accumulator image and the lines extracted.
+	 * @return true when file/s should be saved
+	 */
 	public boolean open() {
 		Shell parent = getParent();
 		shell = new Shell(parent, SWT.TITLE | SWT.BORDER
@@ -70,8 +76,9 @@ public class HoughLineDialog extends Dialog {
 
 		Display display = parent.getDisplay();
 		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch())
+			if (!display.readAndDispatch()){
 				display.sleep();
+			}
 		}
 
 		return true;
@@ -104,34 +111,36 @@ public class HoughLineDialog extends Dialog {
 		TabItem houghLines = new TabItem(tabFolder, SWT.NULL);
 		houghLines.setText("Extracted Lines");
 
-		Image image1 = new Image(shell.getDisplay(), 300, 200);
-		GC gc = new GC(image1);
 		
 		Canvas canvas = new Canvas(tabFolder, SWT.NONE);
-//		canvas.setSize(result.getOriginalImage().getHeight(), result.getOriginalImage().getWidth());
-		canvas.setBackground(getParent().getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		canvas.setBackground(getParent().getDisplay().getSystemColor(SWT.COLOR_GRAY));
 		houghLines.setControl(canvas);
-		GridData data = new GridData();
-		data.widthHint = 1000;
-		data.heightHint = 1000;
-		canvas.setLayoutData(data);
 		// Add a handler to do the drawing
 		canvas.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent e) {
 				// Get the canvas and its size
 				Canvas canvas = (Canvas) e.widget;
-				int maxX = canvas.getSize().x;
-				int maxY = canvas.getSize().y;
 
-				// Calculate the middle
-				int halfX = (int) maxX / 2;
-				int halfY = (int) maxY / 2;
+				int width = result.getOriginalImage().getWidth();
+				int height = result.getOriginalImage().getHeight();
+				HashMap<Point, Integer> maxima = result.getMaxima(8);
 
-		        Image image = new Image(shell.getDisplay(), 300, 200);
+		        Image image = new Image(shell.getDisplay(), width, height);
 		        GC gc = new GC(image);
-		        gc.drawLine(10,10,200,200);
+		        //TODO: get coordinate for line drawing and draw lines
+		       // r = x cos theta + y sin theta
+		        
+				for(Point p : maxima.keySet()){
+					Point[] ps = getLinePoints(p);
+					if(ps[0] != null && ps[1] != null){
+						gc.drawLine(ps[0].x, ps[0].y, ps[1].x, ps[1].y);
+					} else {
+						logger.error(String.format("Could not draw line for r=%d and t=%d", p.x, p.y));
+					}
+				}
+				
+		        
 		        gc.dispose();
-
 		        e.gc.drawImage(image, 10, 10);
 		        image.dispose();
 			}
@@ -152,6 +161,78 @@ public class HoughLineDialog extends Dialog {
 	 */
 	public final void setResult(HoughTransResult result) {
 		this.result = result;
+	}
+	
+	/**
+	 * 
+	 * @param polarpoint in fact a line, not a point (r = x cos(theta)+y sin(theta))
+	 * @return two points that can be used for drawing
+	 */
+	private Point[] getLinePoints(Point polarpoint){
+		int width = result.getOriginalImage().getWidth();
+		int height = result.getOriginalImage().getHeight();
+		int r = polarpoint.x;
+		int theta = polarpoint.y;
+		//r = x cos(theta)+y sin(theta)
+		//get start and end point on the border of the image
+		Point p1 = new Point(0,0);
+		Point p2 = new Point(0,0);
+		Point p3 = new Point(0,0);
+		Point p4 = new Point(0,0);
+		
+		Point[] validPoints = new Point[2];
+		int indexCtr = 0;
+		
+		//try x = 0 with y = csc(theta) (r cos(theta))
+		// y = r csc(theta)
+		p1.x = 0;
+		p1.y = (int) (r * 1 /Math.sin(theta));
+		logger.debug(String.format("P1(%d|%d)", p1.x, p1.y));
+		if(isValidPoint(p1)){
+			validPoints[indexCtr++] = p1;
+		}
+		
+		//try y = 0 -> x = r sec(theta)
+		p2.x = (int) (r * 1 / Math.cos(theta));
+		p2.y = 0;
+		logger.debug(String.format("P2(%d|%d)", p2.x, p2.y));
+		if(isValidPoint(p2)){
+			validPoints[indexCtr++] = p2;
+		}
+		
+		if(indexCtr == 2){
+			return validPoints;
+		}
+		
+		//try x = image.width
+		// y = csc(theta) (r-image.width cos(theta))
+		p3.x = width;
+		p3.y = (int) (1 /Math.sin(theta) * (r-width * Math.cos(theta)));
+		logger.debug(String.format("P3(%d|%d)", p3.x, p3.y));
+		if(isValidPoint(p3)){
+			validPoints[indexCtr++] = p3;
+		}
+		
+		if(indexCtr == 2){
+			return validPoints;
+		}
+		
+		//try y = image.height
+		//x = sec(theta) (r-100 sin(theta))
+		p4.x = (int) (1 / Math.cos(theta) * (r - height * Math.sin(theta)));
+		p4.y = height;
+		logger.debug(String.format("P4(%d|%d)", p4.x, p4.y));
+		if(isValidPoint(p4)){
+			validPoints[indexCtr++] = p4;
+		}
+	
+		return validPoints;
+	}
+	
+	private boolean isValidPoint(Point p){
+		int width = result.getOriginalImage().getWidth();
+		int height = result.getOriginalImage().getHeight();
+		return p.x >= 0 && p.x <= width && p.y >= 0 && p.y <= height;
 	}
 
 }
