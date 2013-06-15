@@ -52,7 +52,10 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		PaletteData palette = new PaletteData(255, 255, 255);
 		idata = new ImageData(pgm.getWidth(), pgm.getHeight(), depth, palette);
 		
-		//copy bytes into swt image data obj
+		//read image data from source file if present
+		idata = new ImageData(pgm.getFile().getAbsolutePath());
+		
+		//otherwise copy bytes into swt image data obj
 		byte[][] px = pgm.getPixels();		
 		int bytecounter = 0;
 		for(int row = 0; row < pgm.getHeight(); row++){
@@ -64,15 +67,17 @@ public class PreviewComposite extends Composite implements ImageEventListener{
 		//create and display image
 		Image img = new Image(display, idata);
 		//FIXME: only works for landscape oriented images for some reason.
+		//possible workaround: create temporary file and create swt image from inputstream
 		logger.debug(bytecounter + " vs " + img.getImageData().data.length);
 		logger.debug("bytes per line: " + img.getImageData().bytesPerLine + " width: " + pgm.getWidth());
 		
-		for (int y = 0, j = 3; y < 50; y++) {
+		for (int y = 0, j = 3, n = 0; y < 50; y++) {
 			for (int x = 0; x < pgm.getWidth(); x++) {
-				int orig = (int) px[y][x] & 0xff;
-				int nev = (int) (img.getImageData().data[j]) & 0xff;
+				byte orig = px[y][x];
+				byte nev = (img.getImageData().data[j]);
+				byte seq = img.getImageData().data[n++];
 				if (x % 20 == 0 && nev != orig) {
-					logger.debug(orig + " vs " + nev);
+					logger.debug(orig + " vs " + nev + " vs " + seq);
 				}
 
 				j += 4;
